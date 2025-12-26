@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100 font-sans p-4">
+
+    <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-4">Daily Shop Entry</h1>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Type</label>
+                <select id="type" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+                    <option value="sale">Sale (+)</option>
+                    <option value="expense">Expense (-)</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Amount</label>
+                <input type="number" id="amount" placeholder="0.00" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Description</label>
+                <input type="text" id="desc" placeholder="e.g. Soda or Electricity" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+            </div>
+            <button onclick="handleSubmit()" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 transition">
+                Save Transaction
+            </button>
+        </div>
+
+        <hr class="my-8">
+
+        <h2 class="text-xl font-bold text-gray-800 mb-2">Weekly Summary</h2>
+        <canvas id="myChart" width="400" height="300"></canvas>
+    </div>
+
+    <script>
+        // Placeholder for Chart Initialization
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Daily Profit',
+                    data: [120, 190, 30, 50, 240, 300, 150],
+                    backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                    borderColor: 'rgb(59, 130, 246)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        function handleSubmit() {
+            const type = document.getElementById('type').value;
+            const amount = document.getElementById('amount').value;
+            const desc = document.getElementById('desc').value;
+
+            if(!amount) return alert("Please enter an amount");
+
+            console.log("Saving:", {type, amount, desc});
+            alert("Saved locally! Next step: Connect to Google Sheets.");
+            
+            // Clear inputs
+            document.getElementById('amount').value = '';
+            document.getElementById('desc').value = '';
+        }
+    </script>
+</body>
+</html>
