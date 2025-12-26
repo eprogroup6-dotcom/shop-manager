@@ -3,110 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Nexgen Ledger</title>
+    <title>Nexgen Focus</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
-        .glass-header { background: linear-gradient(135deg, #4338ca 0%, #1e1b4b 100%); }
+        .glass-header { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); }
         .active-tab { background: white; color: #4338ca; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         #entry-panel { transition: transform 0.3s cubic-bezier(0, 0, 0.2, 1); transform: translateY(100%); }
         #entry-panel.show { transform: translateY(0); }
-        input, select { font-size: 16px !important; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 overflow-hidden">
 
     <div id="auth-overlay" class="fixed inset-0 z-[100] glass-header flex flex-col items-center justify-center p-10">
-        <div class="text-center mb-10">
-            <h1 class="text-3xl font-extrabold text-white tracking-tighter">NEXGEN</h1>
-            <div class="h-1 w-12 bg-indigo-400 mx-auto rounded-full mt-1"></div>
-            <p class="text-white/60 text-[10px] uppercase mt-4 tracking-widest">Enter Admin PIN</p>
-        </div>
-        <div class="relative w-full max-w-[240px] mb-8">
-            <input type="password" id="pin-input" inputmode="numeric" placeholder="••••" class="bg-white/10 border border-white/20 rounded-2xl p-5 text-center text-4xl text-white tracking-[0.2em] w-full outline-none focus:border-indigo-400">
-        </div>
-        <button onclick="checkPin()" class="w-full max-w-[240px] bg-white text-indigo-900 font-black py-5 rounded-2xl active:scale-95 transition-all shadow-xl">UNLOCK LEDGER</button>
+        <h1 class="text-3xl font-extrabold text-white tracking-tighter mb-2">NEXGEN</h1>
+        <p class="text-indigo-300 text-[10px] uppercase tracking-widest mb-10 text-center font-bold">Solutions Manager</p>
+        <input type="password" id="pin-input" inputmode="numeric" placeholder="••••" class="bg-white/10 border border-white/20 rounded-2xl p-5 text-center text-4xl text-white tracking-[0.2em] w-full max-w-[220px] mb-8 outline-none">
+        <button onclick="checkPin()" class="w-full max-w-[220px] bg-white text-indigo-900 font-black py-5 rounded-2xl active:scale-95 shadow-xl">LOG IN</button>
     </div>
 
     <div id="main-content" class="hidden h-screen flex flex-col">
-        <div class="glass-header p-6 pb-12 rounded-b-[2.5rem] shadow-xl relative">
-            <div class="flex justify-between items-center text-white/60 text-[10px] font-bold tracking-widest uppercase mb-4">
-                <span>Nexgen Solutions</span>
+        <div class="glass-header p-6 pb-14 rounded-b-[3rem] shadow-2xl relative">
+            <div class="flex justify-between items-center text-white/40 text-[10px] font-black uppercase tracking-widest mb-8">
+                <span>Current Ledger</span>
                 <span id="current-time">00:00</span>
             </div>
-            <div class="text-white">
-                <p class="text-xs font-semibold opacity-70">Daily Net Profit</p>
-                <h1 id="stat-profit" class="text-4xl font-extrabold tracking-tight mt-1 text-green-300">Ksh 0</h1>
+            
+            <div class="text-center text-white space-y-2 mb-10">
+                <p class="text-xs font-bold opacity-60 uppercase tracking-widest">Today's Profit</p>
+                <h1 id="stat-profit" class="text-5xl font-black tracking-tighter text-green-400">Ksh 0</h1>
             </div>
-            <div class="flex gap-3 mt-6">
-                <div class="flex-1 bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/10">
-                    <p class="text-[9px] text-green-400 font-bold uppercase">Sales (<span id="count-sale">0</span>)</p>
-                    <p id="stat-sales" class="text-lg font-bold text-white">0</p>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-white/5 backdrop-blur-xl rounded-[2rem] p-5 border border-white/10 text-center">
+                    <p class="text-[9px] text-indigo-300 font-black uppercase tracking-widest mb-1">Total Sales</p>
+                    <p id="stat-sales" class="text-2xl font-black text-white">0</p>
+                    <p class="text-[10px] text-white/40 font-bold mt-1"><span id="count-sale">0</span> items</p>
                 </div>
-                <div class="flex-1 bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/10">
-                    <p class="text-[9px] text-red-400 font-bold uppercase">Exp (<span id="count-expense">0</span>)</p>
-                    <p id="stat-expenses" class="text-lg font-bold text-white">0</p>
+                <div class="bg-white/5 backdrop-blur-xl rounded-[2rem] p-5 border border-white/10 text-center">
+                    <p class="text-[9px] text-rose-300 font-black uppercase tracking-widest mb-1">Total Expenses</p>
+                    <p id="stat-expenses" class="text-2xl font-black text-white">0</p>
+                    <p class="text-[10px] text-white/40 font-bold mt-1"><span id="count-expense">0</span> items</p>
                 </div>
             </div>
         </div>
 
         <div class="flex-1 overflow-y-auto px-5 -mt-6 space-y-4 pb-32">
-            <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-100">
-                <canvas id="liveChart" height="140"></canvas>
+            <div class="flex justify-between items-center px-4">
+                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">Recent Activity</h3>
+                <button onclick="localStorage.clear(); location.reload();" class="text-[10px] text-red-500 font-bold uppercase">Reset</button>
             </div>
-            <div class="space-y-3">
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest px-2">Today's Transactions</h3>
-                <div id="history-list" class="space-y-3"></div>
-            </div>
+            <div id="history-list" class="space-y-3">
+                </div>
         </div>
 
-        <div class="fixed bottom-0 left-0 right-0 p-8 pb-10 pointer-events-none flex justify-center">
-            <button onclick="toggleEntry(true)" class="pointer-events-auto bg-indigo-600 text-white w-20 h-20 rounded-full shadow-2xl flex items-center justify-center active:scale-90 transition-all border-8 border-slate-50">
+        <div class="fixed bottom-0 left-0 right-0 p-8 flex justify-center pointer-events-none">
+            <button onclick="toggleEntry(true)" class="pointer-events-auto bg-indigo-600 text-white w-20 h-20 rounded-full shadow-[0_15px_40px_rgba(79,70,229,0.4)] flex items-center justify-center active:scale-90 transition-all border-8 border-slate-50">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M12 6v12m6-6H6" />
                 </svg>
             </button>
         </div>
     </div>
 
     <div id="sheet-overlay" onclick="toggleEntry(false)" class="fixed inset-0 bg-black/60 z-[60] hidden"></div>
-    <div id="entry-panel" class="fixed bottom-0 left-0 right-0 bg-white z-[70] rounded-t-[3rem] p-8 shadow-2xl max-w-lg mx-auto">
+    <div id="entry-panel" class="fixed bottom-0 left-0 right-0 bg-white z-[70] rounded-t-[3rem] p-8 shadow-2xl max-w-lg mx-auto pb-12">
         <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-8"></div>
-        <div class="flex bg-slate-100 p-1 rounded-2xl mb-6">
-            <button onclick="setType('sale')" id="btn-sale" class="active-tab flex-1 py-3 rounded-xl font-bold text-xs uppercase">Income</button>
-            <button onclick="setType('expense')" id="btn-expense" class="flex-1 py-3 rounded-xl font-bold text-xs uppercase text-slate-400">Expense</button>
+        <div class="flex bg-slate-100 p-1.5 rounded-2xl mb-8">
+            <button onclick="setType('sale')" id="btn-sale" class="active-tab flex-1 py-4 rounded-xl font-black text-xs uppercase transition-all">Sale</button>
+            <button onclick="setType('expense')" id="btn-expense" class="flex-1 py-4 rounded-xl font-black text-xs uppercase transition-all text-slate-400">Expense</button>
         </div>
-        <div class="space-y-5">
-            <select id="item-desc" class="w-full p-4 bg-slate-50 border-none rounded-2xl font-bold text-slate-700 outline-none">
-                <optgroup label="Services" id="opt-sales">
+        <div class="space-y-6">
+            <select id="item-desc" class="w-full p-5 bg-slate-50 border-none rounded-2xl font-black text-slate-700 outline-none ring-2 ring-transparent focus:ring-indigo-500">
+                <optgroup label="Nexgen Services" id="opt-sales">
                     <option>Printing</option><option>Photocopy</option><option>Scanning</option><option>Typesetting</option><option>CV Writing</option><option>Lamination</option><option>DL Renewal</option><option>KRA Registration</option><option>KRA Retrieval</option><option>KRA Return</option><option>Phone Repair</option><option>Laptop Repair</option><option>Phone Accessory</option><option>Laptop Accessory</option><option>Sound Hire</option><option>Training</option><option>Sub-Woofer Repair</option><option>TV Repair</option><option>Windows Installation</option><option>Software Installation</option><option>Songs</option><option>Movies</option><option>Other</option>
                 </optgroup>
-                <optgroup label="Expenses" id="opt-expenses" class="hidden">
-                    <option>Rent</option><option>Stock</option><option>Electricity</option><option>Meals</option><option>Transport</option><option>Internet</option><option>Other</option>
+                <optgroup label="Shop Expenses" id="opt-expenses" class="hidden">
+                    <option>Rent</option><option>Electricity</option><option>Internet</option><option>Stock</option><option>Meals</option><option>Transport</option><option>Other</option>
                 </optgroup>
             </select>
-            <input type="number" id="amount" inputmode="decimal" placeholder="Amount (Ksh)" class="w-full p-5 bg-slate-50 border-none rounded-2xl text-3xl font-black text-indigo-700 outline-none">
-            <button onclick="addRecord()" id="save-btn" class="w-full bg-indigo-600 text-white py-5 rounded-2xl font-bold uppercase tracking-widest active:scale-95 shadow-lg">Confirm & Post</button>
+            <input type="number" id="amount" inputmode="decimal" placeholder="Amount Ksh" class="w-full p-5 bg-slate-50 border-none rounded-2xl text-4xl font-black text-indigo-700 outline-none placeholder:text-slate-300">
+            <button onclick="addRecord()" id="save-btn" class="w-full bg-indigo-600 text-white py-6 rounded-2xl font-black text-sm uppercase tracking-widest active:scale-95 shadow-xl transition-all">Confirm Transaction</button>
         </div>
     </div>
 
     <script>
-        const MY_PIN = "0000"; // UPDATED PASSWORD
+        const MY_PIN = "0000";
         const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbwIfWV_eBBR6LowyF17kiuBchg5oQFYxT_zOyxO6eOdbfj50rGJQhE8uyWYaDLXddfmlA/exec";
         let records = JSON.parse(localStorage.getItem('daily_records')) || [];
         let currentType = 'sale';
 
         function checkPin() {
-            const val = document.getElementById('pin-input').value;
-            if(val === MY_PIN) {
+            if(document.getElementById('pin-input').value === MY_PIN) {
                 document.getElementById('auth-overlay').classList.add('hidden');
                 document.getElementById('main-content').classList.remove('hidden');
-            } else {
-                alert("Incorrect PIN. Please try again.");
-                document.getElementById('pin-input').value = '';
-            }
+            } else { alert("Access Denied"); document.getElementById('pin-input').value = ''; }
         }
 
         function toggleEntry(show) {
@@ -119,11 +111,11 @@
         function setType(type) {
             currentType = type;
             const isS = type === 'sale';
-            document.getElementById('btn-sale').className = isS ? 'active-tab flex-1 py-3 rounded-xl font-bold text-xs uppercase transition-all' : 'flex-1 py-3 rounded-xl font-bold text-xs uppercase transition-all text-slate-400';
-            document.getElementById('btn-expense').className = !isS ? 'active-tab flex-1 py-3 rounded-xl font-bold text-xs uppercase transition-all' : 'flex-1 py-3 rounded-xl font-bold text-xs uppercase transition-all text-slate-400';
+            document.getElementById('btn-sale').className = isS ? 'active-tab flex-1 py-4 rounded-xl font-black text-xs uppercase' : 'flex-1 py-4 rounded-xl font-black text-xs uppercase text-slate-400';
+            document.getElementById('btn-expense').className = !isS ? 'active-tab flex-1 py-4 rounded-xl font-black text-xs uppercase' : 'flex-1 py-4 rounded-xl font-black text-xs uppercase text-slate-400';
             document.getElementById('opt-sales').classList.toggle('hidden', !isS);
             document.getElementById('opt-expenses').classList.toggle('hidden', isS);
-            document.getElementById('item-desc').value = isS ? 'Printing' : 'Stock';
+            document.getElementById('item-desc').value = isS ? 'Printing' : 'Rent';
         }
 
         async function addRecord() {
@@ -132,7 +124,7 @@
             if(!amt || amt <= 0) return;
 
             const btn = document.getElementById('save-btn');
-            btn.disabled = true; btn.innerText = "Syncing...";
+            btn.disabled = true; btn.innerText = "Saving...";
 
             const record = { type: currentType, amount: amt, desc, timestamp: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) };
             records.unshift(record);
@@ -143,7 +135,7 @@
 
             document.getElementById('amount').value = '';
             toggleEntry(false);
-            btn.disabled = false; btn.innerText = "Confirm & Post";
+            btn.disabled = false; btn.innerText = "Confirm Transaction";
         }
 
         function updateDashboard() {
@@ -153,15 +145,15 @@
 
             records.forEach((r, i) => {
                 if (r.type === 'sale') { sT += r.amount; sC++; } else { eT += r.amount; eC++; }
-                if(i < 5) list.innerHTML += `
-                    <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm border border-slate-100">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full flex items-center justify-center ${r.type==='sale'?'bg-indigo-50 text-indigo-600':'bg-red-50 text-red-600'}">
-                                ${r.type==='sale'?'↑':'↓'}
-                            </div>
-                            <div><p class="font-bold text-sm text-slate-800">${r.desc}</p><p class="text-[10px] text-slate-400 font-bold">${r.timestamp}</p></div>
+                list.innerHTML += `
+                    <div class="bg-white p-5 rounded-[2rem] flex justify-between items-center shadow-sm border border-slate-100 mb-3">
+                        <div>
+                            <p class="font-extrabold text-sm text-slate-800">${r.desc}</p>
+                            <p class="text-[9px] text-slate-400 font-black uppercase tracking-widest">${r.timestamp}</p>
                         </div>
-                        <p class="font-extrabold ${r.type==='sale'?'text-indigo-600':'text-red-600'}">Ksh ${r.amount}</p>
+                        <p class="font-black text-lg ${r.type==='sale'?'text-indigo-600':'text-rose-500'}">
+                            ${r.type==='sale'?'+':'-'} ${r.amount.toLocaleString()}
+                        </p>
                     </div>`;
             });
 
@@ -170,8 +162,6 @@
             document.getElementById('stat-profit').innerText = `Ksh ${(sT - eT).toLocaleString()}`;
             document.getElementById('count-sale').innerText = sC;
             document.getElementById('count-expense').innerText = eC;
-            liveChart.data.datasets[0].data = [sT, eT];
-            liveChart.update();
         }
 
         setInterval(() => {
@@ -183,12 +173,6 @@
             }
             document.getElementById('current-time').innerText = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
         }, 1000);
-
-        const ctx = document.getElementById('liveChart').getContext('2d');
-        const liveChart = new Chart(ctx, {
-            type: 'bar', data: { labels: ['Income', 'Expense'], datasets: [{ data: [0, 0], backgroundColor: ['#6366f1', '#f43f5e'], borderRadius: 10 }] },
-            options: { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
-        });
 
         updateDashboard();
     </script>
