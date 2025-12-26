@@ -3,176 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Shop Manager Pro</title>
+    <title>Nexgen Solutions Ledger</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
-        .active-sale { border-color: #10b981; background-color: #ecfdf5; color: #059669; }
-        .active-expense { border-color: #ef4444; background-color: #fef2f2; color: #dc2626; }
-        #auth-overlay { backdrop-filter: blur(10px); }
+        body { -webkit-tap-highlight-color: transparent; font-family: 'Inter', sans-serif; }
+        .active-sale { border-color: #10b981; background-color: #ecfdf5; color: #059669; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
+        .active-expense { border-color: #ef4444; background-color: #fef2f2; color: #dc2626; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); }
+        #auth-overlay { backdrop-filter: blur(15px); }
+        input, select { font-size: 16px !important; } /* Prevents iOS zoom on focus */
     </style>
 </head>
 <body class="bg-slate-50 pb-10">
 
-    <div id="auth-overlay" class="fixed inset-0 z-50 bg-indigo-900/90 flex flex-col items-center justify-center p-6 text-white transition-opacity duration-500">
-        <h2 class="text-2xl font-bold mb-6">Enter Admin PIN</h2>
-        <input type="password" id="pin-input" inputmode="numeric" placeholder="••••" class="bg-white/10 border-2 border-white/20 rounded-2xl p-4 text-center text-3xl tracking-widest w-48 mb-6 focus:outline-none focus:border-white">
-        <button onclick="checkPin()" class="bg-white text-indigo-900 font-bold px-10 py-4 rounded-2xl active:scale-95 transition-transform">Unlock Ledger</button>
+    <div id="auth-overlay" class="fixed inset-0 z-50 bg-slate-900/95 flex flex-col items-center justify-center p-8 text-white transition-opacity duration-500">
+        <div class="mb-8 text-center">
+            <h1 class="text-3xl font-black tracking-tighter text-indigo-400">NEXGEN</h1>
+            <p class="text-xs uppercase tracking-[0.3em] opacity-60">Solutions Manager</p>
+        </div>
+        <input type="password" id="pin-input" inputmode="numeric" placeholder="••••" class="bg-white/5 border-2 border-white/10 rounded-3xl p-5 text-center text-4xl tracking-[0.5em] w-full max-w-[240px] mb-8 focus:outline-none focus:border-indigo-500 transition-all">
+        <button onclick="checkPin()" class="w-full max-w-[240px] bg-indigo-600 hover:bg-indigo-500 text-white font-black py-5 rounded-3xl shadow-2xl shadow-indigo-500/40 active:scale-95 transition-all">UNLOCK</button>
     </div>
 
-    <div id="main-content" class="hidden p-4 space-y-4">
+    <div id="main-content" class="hidden animate-in fade-in duration-700">
         
-        <div class="bg-indigo-700 rounded-[2rem] p-6 text-white shadow-2xl">
-            <div class="flex justify-between items-center mb-2">
-                <h1 class="text-xs font-black uppercase tracking-widest opacity-70">Daily Ledger</h1>
-                <span id="current-time" class="text-[10px] bg-indigo-800 px-3 py-1 rounded-full font-mono text-green-300">00:00:00</span>
-            </div>
-            <p id="stat-profit" class="text-4xl font-black mb-6">Ksh 0</p>
-            <div class="grid grid-cols-2 gap-4 pt-5 border-t border-indigo-500/50">
-                <div class="bg-indigo-800/40 p-3 rounded-2xl">
-                    <p class="text-[10px] opacity-70 font-bold uppercase">Sales (<span id="count-sale">0</span>)</p>
-                    <p id="stat-sales" class="text-lg font-bold">Ksh 0</p>
+        <div class="bg-indigo-700 p-8 pt-10 rounded-b-[3rem] shadow-2xl shadow-indigo-200 text-white relative overflow-hidden">
+            <div class="relative z-10">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-xs font-bold uppercase tracking-widest opacity-60">Nexgen Solutions</h2>
+                        <p id="current-date" class="text-[10px] opacity-80 mt-1">Friday, Dec 26</p>
+                    </div>
+                    <span id="current-time" class="text-[10px] font-mono bg-white/10 px-3 py-1 rounded-full border border-white/10">00:00:00</span>
                 </div>
-                <div class="bg-indigo-800/40 p-3 rounded-2xl">
-                    <p class="text-[10px] opacity-70 font-bold uppercase">Exp (<span id="count-expense">0</span>)</p>
-                    <p id="stat-expenses" class="text-lg font-bold">Ksh 0</p>
+                
+                <p class="text-[10px] uppercase font-bold opacity-60 mb-1">Available Profit</p>
+                <h1 id="stat-profit" class="text-5xl font-black tracking-tight mb-8">Ksh 0</h1>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-white/10 p-4 rounded-3xl border border-white/5">
+                        <p class="text-[9px] uppercase font-bold opacity-70 mb-1 text-green-300">Total Sales (<span id="count-sale">0</span>)</p>
+                        <p id="stat-sales" class="text-xl font-black">0</p>
+                    </div>
+                    <div class="bg-white/10 p-4 rounded-3xl border border-white/5">
+                        <p class="text-[9px] uppercase font-bold opacity-70 mb-1 text-red-300">Expenses (<span id="count-expense">0</span>)</p>
+                        <p id="stat-expenses" class="text-xl font-black">0</p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
-            <div class="flex bg-slate-100 p-1.5 rounded-2xl mb-5">
-                <button onclick="setType('sale')" id="btn-sale" class="active-sale flex-1 py-3 rounded-xl font-bold border-2">Sale</button>
-                <button onclick="setType('expense')" id="btn-expense" class="flex-1 py-3 rounded-xl font-bold border-2 border-transparent text-slate-500">Expense</button>
-            </div>
-            <div class="space-y-4">
-                <select id="item-desc" class="w-full p-4 bg-slate-50 border-none rounded-2xl text-slate-700 font-medium appearance-none">
-                    <optgroup label="Products for Sale" id="opt-sales">
-                        <option>Soda</option><option>Bread</option><option>Milk</option><option>Sugar</option><option>Snacks</option><option>Other Sale</option>
-                    </optgroup>
-                    <optgroup label="Expenses" id="opt-expenses" class="hidden">
-                        <option>Transport</option><option>Electricity</option><option>Airtime</option><option>Packaging</option><option>Water</option><option>Other Expense</option>
-                    </optgroup>
-                </select>
-                <input type="number" id="amount" inputmode="decimal" placeholder="Ksh Amount" class="w-full p-4 bg-slate-50 border-none rounded-2xl text-2xl font-black text-indigo-700">
-                <button onclick="addRecord()" id="save-btn" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-bold active:scale-95 transition-all">Save Transaction</button>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
-            <canvas id="liveChart" height="180"></canvas>
-        </div>
-
-        <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
-            <h3 class="text-xs font-black text-slate-400 uppercase mb-4">Today's History (Latest 5)</h3>
-            <div id="history-list" class="space-y-3">
+        <div class="px-5 -mt-6 space-y-5">
+            <div class="bg-white rounded-[2.5rem] p-6 shadow-xl shadow-slate-200/50 border border-white">
+                <div class="flex bg-slate-100 p-1.5 rounded-2xl mb-6">
+                    <button onclick="setType('sale')" id="btn-sale" class="active-sale flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all">Sale</button>
+                    <button onclick="setType('expense')" id="btn-expense" class="flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all text-slate-400">Expense</button>
                 </div>
+
+                <div class="space-y-5">
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Service / Item</label>
+                        <select id="item-desc" onchange="toggleOtherDesc()" class="w-full mt-1.5 p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-slate-700 font-bold focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all appearance-none">
+                            <optgroup label="Shop Services" id="opt-sales">
+                                <option>Printing</option><option>Photocopy</option><option>Scanning</option><option>Typesetting</option>
+                                <option>CV Writing</option><option>Lamination</option><option>DL Renewal</option><option>KRA Registration</option>
+                                <option>KRA Retrieval</option><option>KRA Return</option><option>Phone Repair</option><option>Laptop Repair</option>
+                                <option>Phone Accessory</option><option>Laptop Accessory</option><option>Sound Hire</option><option>Training</option>
+                                <option>Sub-Woofer Repair</option><option>TV Repair</option><option>Windows Installation</option>
+                                <option>Software Installation</option><option>Songs</option><option>Movies</option><option value="Other">Other (Describe Below)</option>
+                            </optgroup>
+                            <optgroup label="Shop Expenses" id="opt-expenses" class="hidden">
+                                <option>Rent</option><option>Electricity</option><option>Transport</option><option>Stock Purchase</option>
+                                <option>Internet</option><option>Meals</option><option>Other</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div id="other-desc-container" class="hidden animate-bounce-short">
+                        <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest text-indigo-600">Specific Description</label>
+                        <input type="text" id="other-desc" placeholder="What exactly was this?" class="w-full mt-1.5 p-4 bg-indigo-50 border-2 border-indigo-100 rounded-2xl text-indigo-900 font-bold outline-none">
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Amount (Ksh)</label>
+                        <input type="number" id="amount" inputmode="decimal" placeholder="0.00" class="w-full mt-1.5 p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-3xl font-black text-slate-900 focus:border-indigo-500 outline-none transition-all">
+                    </div>
+
+                    <button onclick="addRecord()" id="save-btn" class="w-full bg-indigo-600 text-white py-5 rounded-3xl font-black text-sm uppercase tracking-[0.2em] shadow-xl shadow-indigo-200 active:scale-95 transition-all">
+                        Post Transaction
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-[2.5rem] p-6 shadow-sm border border-slate-100">
+                <h3 class="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-4">Cash Flow Analysis</h3>
+                <canvas id="liveChart" height="200"></canvas>
+            </div>
+
+            <div class="bg-white rounded-[2.5rem] p-6 shadow-sm border border-slate-100">
+                <h3 class="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-4">Latest Transactions</h3>
+                <div id="history-list" class="space-y-3 text-center py-4 text-slate-400 text-xs italic">
+                    No entries yet today...
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        const MY_PIN = "1234"; // CHANGE YOUR PASSWORD HERE
+        const MY_PIN = "1234"; 
         const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbwIfWV_eBBR6LowyF17kiuBchg5oQFYxT_zOyxO6eOdbfj50rGJQhE8uyWYaDLXddfmlA/exec";
         
         let currentType = 'sale';
         let records = JSON.parse(localStorage.getItem('daily_records')) || [];
 
         function checkPin() {
-            const input = document.getElementById('pin-input').value;
-            if(input === MY_PIN) {
-                document.getElementById('auth-overlay').classList.add('hidden');
-                document.getElementById('main-content').classList.remove('hidden');
-            } else {
-                alert("Wrong PIN");
-                document.getElementById('pin-input').value = '';
-            }
+            if(document.getElementById('pin-input').value === MY_PIN) {
+                document.getElementById('auth-overlay').classList.add('opacity-0', 'pointer-events-none');
+                setTimeout(() => {
+                    document.getElementById('auth-overlay').classList.add('hidden');
+                    document.getElementById('main-content').classList.remove('hidden');
+                }, 500);
+            } else { alert("Access Denied"); document.getElementById('pin-input').value = ''; }
         }
 
-        // Timer & Midnight Reset
+        function toggleOtherDesc() {
+            const isOther = document.getElementById('item-desc').value === "Other";
+            document.getElementById('other-desc-container').classList.toggle('hidden', !isOther);
+        }
+
         setInterval(() => {
             const now = new Date();
-            const today = now.toDateString();
-            if (localStorage.getItem('last_reset_date') !== today) {
-                records = [];
-                localStorage.setItem('daily_records', JSON.stringify([]));
-                localStorage.setItem('last_reset_date', today);
+            if (localStorage.getItem('last_reset_date') !== now.toDateString()) {
+                records = []; localStorage.setItem('daily_records', JSON.stringify([]));
+                localStorage.setItem('last_reset_date', now.toDateString());
                 updateDashboard();
             }
             document.getElementById('current-time').innerText = now.toLocaleTimeString();
+            document.getElementById('current-date').innerText = now.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
         }, 1000);
 
-        // Chart Setup
         const ctx = document.getElementById('liveChart').getContext('2d');
         const liveChart = new Chart(ctx, {
             type: 'bar',
-            data: {
-                labels: ['Sales', 'Expenses'],
-                datasets: [{ data: [0, 0], backgroundColor: ['#10b981', '#ef4444'], borderRadius: 10 }]
-            },
+            data: { labels: ['Sales', 'Expenses'], datasets: [{ data: [0, 0], backgroundColor: ['#6366f1', '#f43f5e'], borderRadius: 15 }] },
             options: { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
         });
 
         function setType(type) {
             currentType = type;
             const isSale = type === 'sale';
-            document.getElementById('btn-sale').className = isSale ? 'active-sale flex-1 py-3 rounded-xl font-bold border-2' : 'flex-1 py-3 rounded-xl font-bold border-2 border-transparent text-slate-500';
-            document.getElementById('btn-expense').className = !isSale ? 'active-expense flex-1 py-3 rounded-xl font-bold border-2' : 'flex-1 py-3 rounded-xl font-bold border-2 border-transparent text-slate-500';
+            document.getElementById('btn-sale').className = isSale ? 'active-sale flex-1 py-3 rounded-xl font-black text-xs uppercase transition-all border-2' : 'flex-1 py-3 rounded-xl font-black text-xs uppercase transition-all border-2 border-transparent text-slate-400';
+            document.getElementById('btn-expense').className = !isSale ? 'active-expense flex-1 py-3 rounded-xl font-black text-xs uppercase transition-all border-2' : 'flex-1 py-3 rounded-xl font-black text-xs uppercase transition-all border-2 border-transparent text-slate-400';
             document.getElementById('opt-sales').classList.toggle('hidden', !isSale);
             document.getElementById('opt-expenses').classList.toggle('hidden', isSale);
+            document.getElementById('item-desc').value = isSale ? 'Printing' : 'Rent';
+            toggleOtherDesc();
         }
 
         async function addRecord() {
-            const amountInput = document.getElementById('amount');
-            const amount = parseFloat(amountInput.value);
-            const desc = document.getElementById('item-desc').value;
+            const amtEl = document.getElementById('amount');
+            const descEl = document.getElementById('item-desc');
+            const otherEl = document.getElementById('other-desc');
+            const finalDesc = (descEl.value === "Other") ? otherEl.value : descEl.value;
+
+            if (!amtEl.value || !finalDesc) return alert("Fill all details");
+
             const saveBtn = document.getElementById('save-btn');
+            saveBtn.disabled = true; saveBtn.innerText = "Syncing...";
 
-            if (!amount || amount <= 0) return;
-
-            saveBtn.disabled = true;
-            saveBtn.innerText = "Syncing Cloud...";
-
-            const recordData = { type: currentType, amount, desc, timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) };
+            const record = { type: currentType, amount: parseFloat(amtEl.value), desc: finalDesc, timestamp: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) };
             
-            records.unshift(recordData); // Add to top of history
+            records.unshift(record);
             localStorage.setItem('daily_records', JSON.stringify(records));
             updateDashboard();
 
-            try {
-                await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(recordData) });
-            } catch (e) { console.log("Offline"); }
+            try { await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(record) }); } catch(e) {}
 
-            amountInput.value = '';
-            saveBtn.disabled = false;
-            saveBtn.innerText = 'Save Transaction';
+            amtEl.value = ''; otherEl.value = '';
+            saveBtn.disabled = false; saveBtn.innerText = 'Post Transaction';
         }
 
         function updateDashboard() {
-            let sTotal = 0, eTotal = 0, sCount = 0, eCount = 0;
-            const listEl = document.getElementById('history-list');
-            listEl.innerHTML = '';
+            let sT = 0, eT = 0, sC = 0, eC = 0;
+            const list = document.getElementById('history-list');
+            list.innerHTML = '';
 
-            records.forEach((r, idx) => {
-                if (r.type === 'sale') { sTotal += r.amount; sCount++; }
-                else { eTotal += r.amount; eCount++; }
-                
-                // Only show last 5 in UI list
-                if(idx < 5) {
-                    listEl.innerHTML += `
-                        <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border-l-4 ${r.type === 'sale' ? 'border-green-500' : 'border-red-500'}">
-                            <div><p class="font-bold text-slate-800 text-sm">${r.desc}</p><p class="text-[10px] text-slate-400">${r.timestamp}</p></div>
-                            <p class="font-black ${r.type === 'sale' ? 'text-green-600' : 'text-red-600'}">${r.type === 'sale' ? '+' : '-'} ${r.amount}</p>
-                        </div>`;
-                }
+            records.forEach((r, i) => {
+                if (r.type === 'sale') { sT += r.amount; sC++; } else { eT += r.amount; eC++; }
+                if(i < 5) list.innerHTML += `<div class="flex justify-between items-center p-4 bg-slate-50 rounded-2xl mb-2 border-l-4 ${r.type==='sale'?'border-indigo-500':'border-red-500'} animate-in slide-in-from-right"><div class="text-left"><p class="font-bold text-slate-800 text-sm">${r.desc}</p><p class="text-[9px] text-slate-400 uppercase font-bold">${r.timestamp}</p></div><p class="font-black ${r.type==='sale'?'text-indigo-600':'text-red-500'}">Ksh ${r.amount}</p></div>`;
             });
 
-            document.getElementById('stat-sales').innerText = `Ksh ${sTotal}`;
-            document.getElementById('stat-expenses').innerText = `Ksh ${eTotal}`;
-            document.getElementById('stat-profit').innerText = `Ksh ${sTotal - eTotal}`;
-            document.getElementById('count-sale').innerText = sCount;
-            document.getElementById('count-expense').innerText = eCount;
-            liveChart.data.datasets[0].data = [sTotal, eTotal];
+            document.getElementById('stat-sales').innerText = `Ksh ${sT}`;
+            document.getElementById('stat-expenses').innerText = `Ksh ${eT}`;
+            document.getElementById('stat-profit').innerText = `Ksh ${sT - eT}`;
+            document.getElementById('count-sale').innerText = sC;
+            document.getElementById('count-expense').innerText = eC;
+            liveChart.data.datasets[0].data = [sT, eT];
             liveChart.update();
         }
 
