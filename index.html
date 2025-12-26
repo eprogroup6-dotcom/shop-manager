@@ -3,47 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shop Manager Pro</title>
+    <title>Shop Manager - Kenya</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-gray-50 p-4 pb-20">
+<body class="bg-gray-100 p-4 pb-10">
 
     <div class="max-w-md mx-auto space-y-4">
-        <div class="bg-blue-600 rounded-2xl p-6 text-white shadow-lg">
-            <h1 class="text-xl opacity-80">Running Profit</h1>
-            <p id="stat-profit" class="text-4xl font-bold">$0.00</p>
-            <div class="flex justify-between mt-4 pt-4 border-t border-blue-400">
+        <div class="bg-indigo-700 rounded-3xl p-6 text-white shadow-xl">
+            <div class="flex justify-between items-start mb-2">
+                <h1 class="text-sm opacity-90 uppercase tracking-wider font-bold">Daily Profit</h1>
+                <span id="current-time" class="text-xs bg-indigo-800 px-2 py-1 rounded">00:00:00</span>
+            </div>
+            <p id="stat-profit" class="text-4xl font-black">Ksh 0</p>
+            
+            <div class="grid grid-cols-2 gap-4 mt-6 pt-4 border-t border-indigo-500">
                 <div>
-                    <p class="text-xs opacity-80">Sales</p>
-                    <p id="stat-sales" class="font-bold text-green-300">+$0</p>
+                    <p class="text-xs opacity-70">Sales (<span id="count-sale">0</span>)</p>
+                    <p id="stat-sales" class="font-bold text-green-400">Ksh 0</p>
                 </div>
                 <div>
-                    <p class="text-xs opacity-80">Expenses</p>
-                    <p id="stat-expenses" class="font-bold text-red-300">-$0</p>
-                </div>
-                <div>
-                    <p class="text-xs opacity-80">Records</p>
-                    <p id="stat-count" class="font-bold">0</p>
+                    <p class="text-xs opacity-70">Expenses (<span id="count-expense">0</span>)</p>
+                    <p id="stat-expenses" class="font-bold text-red-400">Ksh 0</p>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <div class="grid grid-cols-2 gap-4 mb-4">
-                <button onclick="setType('sale')" id="btn-sale" class="py-2 rounded-lg font-bold border-2 border-green-500 bg-green-50 text-green-700">Sale</button>
-                <button onclick="setType('expense')" id="btn-expense" class="py-2 rounded-lg font-bold border-2 border-transparent bg-gray-100 text-gray-500">Expense</button>
+        <div class="bg-white rounded-3xl p-6 shadow-sm">
+            <div class="flex bg-gray-100 p-1 rounded-2xl mb-4">
+                <button onclick="setType('sale')" id="btn-sale" class="flex-1 py-3 rounded-xl font-bold transition-all bg-white shadow-sm text-indigo-700">Sale</button>
+                <button onclick="setType('expense')" id="btn-expense" class="flex-1 py-3 rounded-xl font-bold transition-all text-gray-500">Expense</button>
             </div>
 
             <div class="space-y-4">
-                <select id="item-desc" class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500">
+                <select id="item-desc" class="w-full p-4 bg-gray-50 border-none rounded-2xl text-gray-700 focus:ring-2 focus:ring-indigo-500">
                     <optgroup label="Products for Sale" id="opt-sales">
                         <option value="Soda">Soda</option>
                         <option value="Bread">Bread</option>
                         <option value="Milk">Milk</option>
                         <option value="Snacks">Snacks</option>
                     </optgroup>
-                    <optgroup label="Common Expenses" id="opt-expenses" class="hidden">
+                    <optgroup label="Expenses" id="opt-expenses" class="hidden">
                         <option value="Transport">Transport</option>
                         <option value="Electricity">Electricity</option>
                         <option value="Airtime">Airtime</option>
@@ -51,89 +51,102 @@
                     </optgroup>
                 </select>
 
-                <input type="number" id="amount" placeholder="Enter Amount" class="w-full p-3 bg-gray-50 border rounded-xl text-lg font-semibold">
+                <input type="number" id="amount" placeholder="Ksh Amount" class="w-full p-4 bg-gray-50 border-none rounded-2xl text-xl font-bold">
                 
-                <button onclick="addRecord()" class="w-full bg-black text-white py-4 rounded-xl font-bold active:scale-95 transition-transform">
-                    Save Record
+                <button onclick="addRecord()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-indigo-200 active:scale-95 transition-transform">
+                    Save to Ledger
                 </button>
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h3 class="font-bold text-gray-700 mb-4">Live Performance</h3>
+        <div class="bg-white rounded-3xl p-6 shadow-sm">
             <canvas id="liveChart"></canvas>
         </div>
     </div>
 
     <script>
         let currentType = 'sale';
-        let records = [];
+        let records = JSON.parse(localStorage.getItem('daily_records')) || [];
+        let lastResetDate = localStorage.getItem('last_reset_date');
 
-        // 1. Initialize Chart
+        // Check for Midnight Reset
+        function checkMidnightReset() {
+            const now = new Date();
+            const today = now.toDateString();
+            
+            if (lastResetDate !== today) {
+                records = [];
+                localStorage.setItem('daily_records', JSON.stringify([]));
+                localStorage.setItem('last_reset_date', today);
+                updateDashboard();
+            }
+            document.getElementById('current-time').innerText = now.toLocaleTimeString();
+        }
+        setInterval(checkMidnightReset, 1000);
+
+        // Chart Init
         const ctx = document.getElementById('liveChart').getContext('2d');
         const liveChart = new Chart(ctx, {
-            type: 'doughnut',
+            type: 'bar',
             data: {
                 labels: ['Sales', 'Expenses'],
                 datasets: [{
+                    label: 'Ksh',
                     data: [0, 0],
                     backgroundColor: ['#4ade80', '#f87171'],
-                    hoverOffset: 4
+                    borderRadius: 10
                 }]
             },
-            options: { cutout: '70%' }
+            options: { plugins: { legend: { display: false } } }
         });
 
-        // Toggle Sale/Expense UI
         function setType(type) {
             currentType = type;
             const isSale = type === 'sale';
-            
-            // UI Button styling
-            document.getElementById('btn-sale').className = isSale ? 'py-2 rounded-lg font-bold border-2 border-green-500 bg-green-50 text-green-700' : 'py-2 rounded-lg font-bold border-2 border-transparent bg-gray-100 text-gray-500';
-            document.getElementById('btn-expense').className = !isSale ? 'py-2 rounded-lg font-bold border-2 border-red-500 bg-red-50 text-red-700' : 'py-2 rounded-lg font-bold border-2 border-transparent bg-gray-100 text-gray-500';
-            
-            // Toggle Dropdown Groups
+            document.getElementById('btn-sale').className = isSale ? 'flex-1 py-3 rounded-xl font-bold bg-white shadow-sm text-indigo-700' : 'flex-1 py-3 rounded-xl font-bold text-gray-500';
+            document.getElementById('btn-expense').className = !isSale ? 'flex-1 py-3 rounded-xl font-bold bg-white shadow-sm text-red-600' : 'flex-1 py-3 rounded-xl font-bold text-gray-500';
             document.getElementById('opt-sales').classList.toggle('hidden', !isSale);
             document.getElementById('opt-expenses').classList.toggle('hidden', isSale);
-            document.getElementById('item-desc').value = isSale ? 'Soda' : 'Transport';
         }
 
-        // Add Record Logic
         function addRecord() {
             const amount = parseFloat(document.getElementById('amount').value);
             const desc = document.getElementById('item-desc').value;
+            const timestamp = new Date().toISOString();
 
-            if (!amount || amount <= 0) return alert("Enter a valid amount");
+            if (!amount || amount <= 0) return;
 
-            records.push({ type: currentType, amount: amount, desc: desc });
+            records.push({ type: currentType, amount, desc, timestamp });
+            localStorage.setItem('daily_records', JSON.stringify(records));
+            
             updateDashboard();
-
-            // Reset input
             document.getElementById('amount').value = '';
+            
+            // In next step, we will trigger the Google Sheets sync here
+            console.log("Ready to sync:", {timestamp, currentType, desc, amount});
         }
 
         function updateDashboard() {
-            let totalSales = 0;
-            let totalExpenses = 0;
+            let sTotal = 0, eTotal = 0, sCount = 0, eCount = 0;
 
             records.forEach(r => {
-                if (r.type === 'sale') totalSales += r.amount;
-                else totalExpenses += r.amount;
+                if (r.type === 'sale') { sTotal += r.amount; sCount++; }
+                else { eTotal += r.amount; eCount++; }
             });
 
-            const profit = totalSales - totalExpenses;
+            document.getElementById('stat-sales').innerText = `Ksh ${sTotal}`;
+            document.getElementById('stat-expenses').innerText = `Ksh ${eTotal}`;
+            document.getElementById('stat-profit').innerText = `Ksh ${sTotal - eTotal}`;
+            document.getElementById('count-sale').innerText = sCount;
+            document.getElementById('count-expense').innerText = eCount;
 
-            // Update UI Text
-            document.getElementById('stat-sales').innerText = `+$${totalSales.toFixed(2)}`;
-            document.getElementById('stat-expenses').innerText = `-$${totalExpenses.toFixed(2)}`;
-            document.getElementById('stat-profit').innerText = `$${profit.toFixed(2)}`;
-            document.getElementById('stat-count').innerText = records.length;
-
-            // Update Chart
-            liveChart.data.datasets[0].data = [totalSales, totalExpenses];
+            liveChart.data.datasets[0].data = [sTotal, eTotal];
             liveChart.update();
         }
+
+        // Initial Load
+        updateDashboard();
+        checkMidnightReset();
     </script>
 </body>
 </html>
