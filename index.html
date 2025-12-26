@@ -3,75 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shop Manager</title>
+    <title>Shop Manager Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-gray-100 font-sans p-4">
+<body class="bg-gray-50 p-4 pb-20">
 
-    <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6">
-        <h1 class="text-2xl font-bold text-gray-800 mb-4">Daily Shop Entry</h1>
-        
-        <div class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Type</label>
-                <select id="type" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
-                    <option value="sale">Sale (+)</option>
-                    <option value="expense">Expense (-)</option>
-                </select>
+    <div class="max-w-md mx-auto space-y-4">
+        <div class="bg-blue-600 rounded-2xl p-6 text-white shadow-lg">
+            <h1 class="text-xl opacity-80">Running Profit</h1>
+            <p id="stat-profit" class="text-4xl font-bold">$0.00</p>
+            <div class="flex justify-between mt-4 pt-4 border-t border-blue-400">
+                <div>
+                    <p class="text-xs opacity-80">Sales</p>
+                    <p id="stat-sales" class="font-bold text-green-300">+$0</p>
+                </div>
+                <div>
+                    <p class="text-xs opacity-80">Expenses</p>
+                    <p id="stat-expenses" class="font-bold text-red-300">-$0</p>
+                </div>
+                <div>
+                    <p class="text-xs opacity-80">Records</p>
+                    <p id="stat-count" class="font-bold">0</p>
+                </div>
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Amount</label>
-                <input type="number" id="amount" placeholder="0.00" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Description</label>
-                <input type="text" id="desc" placeholder="e.g. Soda or Electricity" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
-            </div>
-            <button onclick="handleSubmit()" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 transition">
-                Save Transaction
-            </button>
         </div>
 
-        <hr class="my-8">
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <button onclick="setType('sale')" id="btn-sale" class="py-2 rounded-lg font-bold border-2 border-green-500 bg-green-50 text-green-700">Sale</button>
+                <button onclick="setType('expense')" id="btn-expense" class="py-2 rounded-lg font-bold border-2 border-transparent bg-gray-100 text-gray-500">Expense</button>
+            </div>
 
-        <h2 class="text-xl font-bold text-gray-800 mb-2">Weekly Summary</h2>
-        <canvas id="myChart" width="400" height="300"></canvas>
+            <div class="space-y-4">
+                <select id="item-desc" class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500">
+                    <optgroup label="Products for Sale" id="opt-sales">
+                        <option value="Soda">Soda</option>
+                        <option value="Bread">Bread</option>
+                        <option value="Milk">Milk</option>
+                        <option value="Snacks">Snacks</option>
+                    </optgroup>
+                    <optgroup label="Common Expenses" id="opt-expenses" class="hidden">
+                        <option value="Transport">Transport</option>
+                        <option value="Electricity">Electricity</option>
+                        <option value="Airtime">Airtime</option>
+                        <option value="Packaging">Packaging</option>
+                    </optgroup>
+                </select>
+
+                <input type="number" id="amount" placeholder="Enter Amount" class="w-full p-3 bg-gray-50 border rounded-xl text-lg font-semibold">
+                
+                <button onclick="addRecord()" class="w-full bg-black text-white py-4 rounded-xl font-bold active:scale-95 transition-transform">
+                    Save Record
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <h3 class="font-bold text-gray-700 mb-4">Live Performance</h3>
+            <canvas id="liveChart"></canvas>
+        </div>
     </div>
 
     <script>
-        // Placeholder for Chart Initialization
-        const ctx = document.getElementById('myChart').getContext('2d');
-        const myChart = new Chart(ctx, {
-            type: 'bar',
+        let currentType = 'sale';
+        let records = [];
+
+        // 1. Initialize Chart
+        const ctx = document.getElementById('liveChart').getContext('2d');
+        const liveChart = new Chart(ctx, {
+            type: 'doughnut',
             data: {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                labels: ['Sales', 'Expenses'],
                 datasets: [{
-                    label: 'Daily Profit',
-                    data: [120, 190, 30, 50, 240, 300, 150],
-                    backgroundColor: 'rgba(59, 130, 246, 0.5)',
-                    borderColor: 'rgb(59, 130, 246)',
-                    borderWidth: 1
+                    data: [0, 0],
+                    backgroundColor: ['#4ade80', '#f87171'],
+                    hoverOffset: 4
                 }]
             },
-            options: {
-                scales: { y: { beginAtZero: true } }
-            }
+            options: { cutout: '70%' }
         });
 
-        function handleSubmit() {
-            const type = document.getElementById('type').value;
-            const amount = document.getElementById('amount').value;
-            const desc = document.getElementById('desc').value;
-
-            if(!amount) return alert("Please enter an amount");
-
-            console.log("Saving:", {type, amount, desc});
-            alert("Saved locally! Next step: Connect to Google Sheets.");
+        // Toggle Sale/Expense UI
+        function setType(type) {
+            currentType = type;
+            const isSale = type === 'sale';
             
-            // Clear inputs
+            // UI Button styling
+            document.getElementById('btn-sale').className = isSale ? 'py-2 rounded-lg font-bold border-2 border-green-500 bg-green-50 text-green-700' : 'py-2 rounded-lg font-bold border-2 border-transparent bg-gray-100 text-gray-500';
+            document.getElementById('btn-expense').className = !isSale ? 'py-2 rounded-lg font-bold border-2 border-red-500 bg-red-50 text-red-700' : 'py-2 rounded-lg font-bold border-2 border-transparent bg-gray-100 text-gray-500';
+            
+            // Toggle Dropdown Groups
+            document.getElementById('opt-sales').classList.toggle('hidden', !isSale);
+            document.getElementById('opt-expenses').classList.toggle('hidden', isSale);
+            document.getElementById('item-desc').value = isSale ? 'Soda' : 'Transport';
+        }
+
+        // Add Record Logic
+        function addRecord() {
+            const amount = parseFloat(document.getElementById('amount').value);
+            const desc = document.getElementById('item-desc').value;
+
+            if (!amount || amount <= 0) return alert("Enter a valid amount");
+
+            records.push({ type: currentType, amount: amount, desc: desc });
+            updateDashboard();
+
+            // Reset input
             document.getElementById('amount').value = '';
-            document.getElementById('desc').value = '';
+        }
+
+        function updateDashboard() {
+            let totalSales = 0;
+            let totalExpenses = 0;
+
+            records.forEach(r => {
+                if (r.type === 'sale') totalSales += r.amount;
+                else totalExpenses += r.amount;
+            });
+
+            const profit = totalSales - totalExpenses;
+
+            // Update UI Text
+            document.getElementById('stat-sales').innerText = `+$${totalSales.toFixed(2)}`;
+            document.getElementById('stat-expenses').innerText = `-$${totalExpenses.toFixed(2)}`;
+            document.getElementById('stat-profit').innerText = `$${profit.toFixed(2)}`;
+            document.getElementById('stat-count').innerText = records.length;
+
+            // Update Chart
+            liveChart.data.datasets[0].data = [totalSales, totalExpenses];
+            liveChart.update();
         }
     </script>
 </body>
