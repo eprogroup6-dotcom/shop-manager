@@ -3,36 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Nexgen Hotel Pro</title>
+    <title>Nexgen Hotel V5</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; background-color: #f8fafc; }
-        
         .glass-header { background: linear-gradient(135deg, #0f172a 0%, #334155 100%); }
-        
-        /* Consistent Branding */
         .theme-mpesa { background: #1eb91e !important; color: white !important; }
         .theme-cash { background: #ca8a04 !important; color: white !important; }
-        
         .nav-item.active { color: #1eb91e; border-top: 3px solid #1eb91e; }
         .nav-item { color: #94a3b8; padding-top: 8px; }
-        
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* Cart Container Fixed Height */
-        #cart-list { height: 180px; overflow-y: auto; border: 2px dashed #e2e8f0; border-radius: 1.5rem; }
+        #cart-list { height: 160px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 1rem; }
     </style>
 </head>
 <body class="text-slate-900 overflow-hidden h-screen flex flex-col">
 
-    <div id="auth-overlay" class="fixed inset-0 z-[100] glass-header flex flex-col items-center justify-center p-10">
+    <div id="auth-overlay" class="fixed inset-0 z-[100] glass-header flex flex-col items-center justify-center p-10 text-center">
         <h1 class="text-6xl font-extrabold text-white tracking-tighter mb-2">NEXGEN</h1>
-        <p class="text-emerald-400 text-sm uppercase tracking-[0.4em] mb-12 font-bold italic">HOTEL EDITION</p>
+        <p class="text-emerald-400 text-sm uppercase tracking-[0.4em] mb-12 font-bold italic">HOTEL V5</p>
         <input type="password" id="pin-input" inputmode="numeric" placeholder="••••" class="bg-white/10 border-2 border-white/20 rounded-3xl p-6 text-center text-6xl text-white tracking-[0.2em] w-full max-w-[280px] mb-8 outline-none">
-        <button onclick="checkPin()" class="w-full max-w-[280px] bg-emerald-500 text-white font-black py-6 rounded-[2.5rem] active:scale-95 text-2xl shadow-2xl">START SHIFT</button>
+        <button onclick="checkPin()" class="w-full max-w-[280px] bg-emerald-500 text-white font-black py-6 rounded-[2.5rem] active:scale-95 text-2xl shadow-2xl">OPEN SYSTEM</button>
     </div>
 
     <div id="main-content" class="hidden flex-1 flex flex-col h-full">
@@ -40,22 +32,19 @@
         <div class="glass-header p-6 pt-10 pb-6 rounded-b-[2rem] shadow-xl shrink-0">
             <div class="flex justify-between items-start mb-4">
                 <div>
-                    <h2 id="header-date" class="text-2xl font-extrabold text-white">Date 2026</h2>
-                    <div class="flex items-center gap-2 mt-1">
-                        <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                        <span class="text-[10px] text-white/50 font-bold uppercase tracking-widest">System Active</span>
-                    </div>
+                    <h2 id="header-date" class="text-2xl font-extrabold text-white">...</h2>
+                    <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest mt-1">Live Management System</p>
                 </div>
                 <button onclick="syncWithCloud()" class="bg-white/10 p-3 rounded-full"><i class="fas fa-sync text-white"></i></button>
             </div>
             
-            <div id="header-stats" class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-2 gap-3">
                 <div class="bg-white/5 p-3 rounded-2xl border border-white/10">
-                    <p class="text-[9px] text-amber-400 font-bold uppercase">Cash Sales</p>
+                    <p class="text-[9px] text-amber-400 font-bold uppercase mb-1">Total Cash</p>
                     <p id="stat-cash" class="text-xl font-black text-white">0</p>
                 </div>
                 <div class="bg-white/5 p-3 rounded-2xl border border-white/10">
-                    <p class="text-[9px] text-emerald-400 font-bold uppercase">M-Pesa Sales</p>
+                    <p class="text-[9px] text-emerald-400 font-bold uppercase mb-1">Total M-Pesa</p>
                     <p id="stat-mpesa" class="text-xl font-black text-white">0</p>
                 </div>
             </div>
@@ -64,84 +53,89 @@
         <div class="flex-1 overflow-y-auto no-scrollbar pb-32" id="content-area">
             
             <div id="view-dashboard" class="p-5 space-y-4">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">7-Day Transaction Log</h3>
-                </div>
+                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest px-2">Recent 7 Days History</h3>
                 <div id="history-list" class="space-y-2"></div>
             </div>
 
-            <div id="view-pos" class="hidden flex flex-col h-full p-4">
+            <div id="view-pos" class="hidden p-5 flex flex-col">
                 
-                <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 mb-4">
-                    <div class="flex justify-between items-center mb-2 px-2">
-                        <span class="text-[10px] font-black text-slate-400 uppercase">Current Order</span>
-                        <span id="cart-total-display" class="text-xl font-black text-indigo-600">Total: 0</span>
+                <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 mb-6">
+                    <div class="flex justify-between items-center mb-2 px-1">
+                        <span class="text-[10px] font-black text-slate-400 uppercase italic">Order Summary</span>
+                        <span id="cart-total-display" class="text-xl font-black text-emerald-600">0</span>
                     </div>
-                    <div id="cart-list" class="bg-slate-50 p-2 space-y-1 overflow-y-auto">
+                    <div id="cart-list" class="bg-slate-50 p-2 space-y-1">
                         </div>
                 </div>
 
-                <div class="flex gap-2 mb-4">
-                    <button id="qty-half" onclick="setQty(0.5)" class="flex-1 py-3 rounded-xl font-bold border-2 border-slate-200 text-slate-500 bg-white active:bg-indigo-50">0.5 (Half)</button>
-                    <button id="qty-full" onclick="setQty(1)" class="flex-1 py-3 rounded-xl font-bold border-2 border-indigo-600 text-indigo-600 bg-indigo-50">1.0 (Full)</button>
-                    <button id="qty-double" onclick="setQty(2)" class="flex-1 py-3 rounded-xl font-bold border-2 border-slate-200 text-slate-500 bg-white">2.0 (Double)</button>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2 mb-6" id="menu-grid">
+                <div class="bg-white p-5 rounded-3xl shadow-lg border border-slate-100 space-y-4">
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase block mb-2 ml-1">Select Item</label>
+                        <select id="item-dropdown" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold text-slate-700 outline-none appearance-none">
+                            </select>
                     </div>
 
-                <div class="flex gap-2 mb-6">
-                    <input type="text" id="custom-name" placeholder="Other Item" class="flex-1 bg-white border border-slate-200 p-3 rounded-xl text-sm font-bold">
-                    <input type="number" id="custom-price" placeholder="Price" class="w-24 bg-white border border-slate-200 p-3 rounded-xl text-sm font-bold">
-                    <button onclick="addCustomToCart()" class="bg-slate-800 text-white px-5 rounded-xl font-bold">+</button>
+                    <div class="flex gap-3">
+                        <div class="flex-1">
+                            <label class="text-[10px] font-black text-slate-400 uppercase block mb-2 ml-1">Quantity (Any Fraction)</label>
+                            <input type="number" id="pos-qty" step="0.01" value="1" min="0.01" onchange="validateQty(this)" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold text-slate-700 outline-none">
+                        </div>
+                        <div class="flex items-end">
+                            <button onclick="addItemToCart()" class="bg-slate-800 text-white h-[58px] px-8 rounded-2xl font-bold shadow-lg active:scale-95">ADD</button>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <button onclick="checkout('Cash')" class="theme-cash py-5 rounded-2xl font-black shadow-lg flex flex-col items-center">
-                        <i class="fas fa-money-bill-wave mb-1"></i> CASH
+                <div class="grid grid-cols-2 gap-4 mt-8">
+                    <button onclick="checkout('Cash')" class="theme-cash py-6 rounded-3xl font-black shadow-xl flex flex-col items-center justify-center gap-1">
+                        <i class="fas fa-money-bill-wave text-xl"></i>
+                        <span>CASH</span>
                     </button>
-                    <button onclick="checkout('Mpesa')" class="theme-mpesa py-5 rounded-2xl font-black shadow-lg flex flex-col items-center">
-                        <span class="font-bold text-lg italic">M-PESA</span>
+                    <button onclick="checkout('Mpesa')" class="theme-mpesa py-6 rounded-3xl font-black shadow-xl flex flex-col items-center justify-center gap-1">
+                        <div class="font-bold text-xl italic">M-PESA</div>
                     </button>
                 </div>
             </div>
 
-            <div id="view-inventory" class="hidden p-5 space-y-4">
-                <div class="bg-white rounded-3xl p-5 shadow-lg border border-slate-100">
-                    <h4 class="text-xs font-black text-slate-400 uppercase mb-4 tracking-widest">Inventory Management</h4>
-                    <div id="stock-list" class="space-y-4"></div>
-                    <button onclick="addNewStockItem()" class="w-full mt-6 py-3 border-2 border-dashed border-slate-200 rounded-xl text-slate-400 font-bold text-xs uppercase">+ Add Raw Material</button>
+            <div id="view-inventory" class="hidden p-5">
+                <div class="bg-white rounded-3xl p-5 shadow-lg border border-slate-100 space-y-4">
+                    <div class="flex justify-between items-center px-1">
+                        <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest">Kitchen Stock</h4>
+                        <button onclick="addNewStockItem()" class="text-indigo-600 font-bold text-xs uppercase">+ Add Raw Material</button>
+                    </div>
+                    <div id="stock-list" class="space-y-4 pt-2"></div>
                 </div>
             </div>
 
             <div id="view-expense" class="hidden p-5">
-                <div class="bg-white rounded-3xl p-6 shadow-xl">
-                    <h2 class="text-xl font-black text-slate-800 mb-4 uppercase">New Expense</h2>
-                    <input type="text" id="exp-desc" placeholder="e.g. Buying Milk" class="w-full bg-slate-50 p-4 rounded-xl font-bold mb-3 outline-none border border-slate-100">
-                    <input type="number" id="exp-amount" placeholder="Amount" class="w-full bg-slate-50 p-4 rounded-xl font-bold mb-6 outline-none border border-slate-100 text-2xl">
-                    <div class="grid grid-cols-2 gap-3">
-                        <button onclick="recordExpense('Cash')" class="theme-cash py-4 rounded-xl font-bold text-xs uppercase shadow-md">Paid Cash</button>
-                        <button onclick="recordExpense('Mpesa')" class="theme-mpesa py-4 rounded-xl font-bold text-xs uppercase shadow-md">Paid Mpesa</button>
+                <div class="bg-white rounded-3xl p-6 shadow-xl space-y-4">
+                    <h2 class="text-xl font-black text-slate-800 uppercase">New Expense</h2>
+                    <input type="text" id="exp-desc" placeholder="Details (e.g. Sugar buy)" class="w-full bg-slate-50 p-4 rounded-2xl font-bold outline-none border border-slate-100">
+                    <input type="number" id="exp-amount" placeholder="Amount (Ksh)" class="w-full bg-slate-50 p-4 rounded-2xl font-bold outline-none border border-slate-100 text-2xl">
+                    <div class="grid grid-cols-2 gap-3 mt-4">
+                        <button onclick="recordExpense('Cash')" class="theme-cash py-5 rounded-2xl font-black text-xs uppercase shadow-md">Paid Cash</button>
+                        <button onclick="recordExpense('Mpesa')" class="theme-mpesa py-5 rounded-2xl font-black text-xs uppercase shadow-md">Paid Mpesa</button>
                     </div>
                 </div>
             </div>
+
         </div>
 
         <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-6 py-2 pb-8 flex justify-between items-center z-50">
             <button onclick="switchView('dashboard')" class="nav-item active flex flex-col items-center w-1/4" id="nav-dashboard">
-                <i class="fas fa-th-large text-xl"></i>
+                <i class="fas fa-history text-xl"></i>
                 <span class="text-[9px] font-bold uppercase mt-1">History</span>
             </button>
             <button onclick="switchView('pos')" class="nav-item flex flex-col items-center w-1/4" id="nav-pos">
-                <i class="fas fa-plus-circle text-xl text-slate-800"></i>
-                <span class="text-[9px] font-bold uppercase mt-1">Order</span>
+                <i class="fas fa-shopping-basket text-xl"></i>
+                <span class="text-[9px] font-bold uppercase mt-1">Sell</span>
             </button>
             <button onclick="switchView('inventory')" class="nav-item flex flex-col items-center w-1/4" id="nav-inventory">
-                <i class="fas fa-boxes text-xl"></i>
+                <i class="fas fa-utensils text-xl"></i>
                 <span class="text-[9px] font-bold uppercase mt-1">Stock</span>
             </button>
             <button onclick="switchView('expense')" class="nav-item flex flex-col items-center w-1/4" id="nav-expense">
-                <i class="fas fa-receipt text-xl"></i>
+                <i class="fas fa-wallet text-xl"></i>
                 <span class="text-[9px] font-bold uppercase mt-1">Spend</span>
             </button>
         </div>
@@ -149,9 +143,6 @@
 
     <script>
         const MY_PIN = "0000";
-        let currentQty = 1;
-        
-        // Initial Hotel Pilot Data
         let appData = {
             transactions: [],
             menu: [
@@ -164,9 +155,10 @@
                 { name: "Maandazi", price: 70 }
             ],
             inventory: [
-                { id: 1, name: "Potatoes", unit: "Kg", now: 10, open: 10 },
-                { id: 2, name: "Milk", unit: "Ltr", now: 5, open: 5 },
-                { id: 3, name: "Sugar", unit: "Kg", now: 2, open: 2 }
+                { id: 1, name: "Potatoes", unit: "Kg", now: 0, open: 0 },
+                { id: 2, name: "Milk", unit: "Ltr", now: 0, open: 0 },
+                { id: 3, name: "Sugar", unit: "Kg", now: 0, open: 0 },
+                { id: 4, name: "Tea leaves", unit: "Gms", now: 0, open: 0 }
             ],
             lastDate: new Date().toDateString()
         };
@@ -181,19 +173,16 @@
         }
 
         function init() {
-            const saved = localStorage.getItem('nexgen_hotel_v4');
+            const saved = localStorage.getItem('nexgen_hotel_v5');
             if(saved) appData = JSON.parse(saved);
             
-            // Clean history older than 7 days
-            const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
-            appData.transactions = appData.transactions.filter(t => t.timestamp > sevenDaysAgo);
+            // Maintenance: Clean history > 7 days
+            const limit = Date.now() - (7 * 24 * 60 * 60 * 1000);
+            appData.transactions = appData.transactions.filter(t => t.timestamp > limit);
             
             checkNewDay();
             renderAll();
-            
-            // Date Format: January 3, 2026
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('header-date').innerText = new Date().toLocaleDateString('en-US', options);
+            document.getElementById('header-date').innerText = new Date().toLocaleDateString('en-US', { day:'numeric', month:'long', year:'numeric' });
         }
 
         function checkNewDay() {
@@ -205,124 +194,101 @@
             }
         }
 
-        function saveData() { localStorage.setItem('nexgen_hotel_v4', JSON.stringify(appData)); }
+        function saveData() { localStorage.setItem('nexgen_hotel_v5', JSON.stringify(appData)); }
+
+        function validateQty(input) {
+            if(input.value <= 0) input.value = 1;
+        }
 
         function renderAll() {
-            renderMenu();
+            renderDropdown();
             renderHistory();
             renderInventory();
             updateStats();
-        }
-
-        // --- POS LOGIC ---
-        function setQty(val) {
-            currentQty = val;
-            document.querySelectorAll('[id^="qty-"]').forEach(btn => btn.className = "flex-1 py-3 rounded-xl font-bold border-2 border-slate-200 text-slate-500 bg-white");
-            const activeId = val === 0.5 ? 'qty-half' : val === 1 ? 'qty-full' : 'qty-double';
-            document.getElementById(activeId).className = "flex-1 py-3 rounded-xl font-bold border-2 border-indigo-600 text-indigo-600 bg-indigo-50";
-        }
-
-        function renderMenu() {
-            const grid = document.getElementById('menu-grid');
-            grid.innerHTML = "";
-            appData.menu.forEach(item => {
-                grid.innerHTML += `
-                    <button onclick="addToCart('${item.name}', ${item.price})" class="bg-white border-2 border-slate-100 p-4 rounded-2xl shadow-sm active:scale-95 text-left">
-                        <p class="font-bold text-slate-800 text-sm">${item.name}</p>
-                        <p class="text-xs font-black text-indigo-500 mt-1">Ksh ${item.price}</p>
-                    </button>`;
-            });
-        }
-
-        function addToCart(name, price) {
-            const finalPrice = price * currentQty;
-            const displayName = currentQty === 0.5 ? `1/2 ${name}` : currentQty > 1 ? `${name} (x${currentQty})` : name;
-            
-            cart.push({ name: displayName, price: finalPrice });
             renderCart();
-            setQty(1); // Reset to full after add
         }
 
-        function addCustomToCart() {
-            const name = document.getElementById('custom-name').value;
-            const price = parseFloat(document.getElementById('custom-price').value);
-            if(name && price) {
-                addToCart(name, price);
-                document.getElementById('custom-name').value = "";
-                document.getElementById('custom-price').value = "";
+        // --- POS ---
+        function renderDropdown() {
+            const dropdown = document.getElementById('item-dropdown');
+            dropdown.innerHTML = appData.menu.map((item, idx) => 
+                `<option value="${idx}">${item.name} - Ksh ${item.price}</p>`
+            ).join("");
+        }
+
+        function addItemToCart() {
+            const menuIdx = document.getElementById('item-dropdown').value;
+            const item = appData.menu[menuIdx];
+            const qty = parseFloat(document.getElementById('pos-qty').value);
+            
+            if(qty > 0) {
+                const finalPrice = item.price * qty;
+                const entryName = qty === 1 ? item.name : `${qty} x ${item.name}`;
+                cart.push({ name: entryName, price: finalPrice });
+                renderCart();
+                document.getElementById('pos-qty').value = 1; // Reset
             }
         }
 
         function renderCart() {
             const list = document.getElementById('cart-list');
-            list.innerHTML = "";
+            list.innerHTML = cart.length ? "" : '<p class="text-center text-slate-300 py-6 text-xs italic">Cart Empty</p>';
             let total = 0;
-            cart.forEach((item, index) => {
+            cart.forEach((item, idx) => {
                 total += item.price;
                 list.innerHTML += `
                     <div class="flex justify-between items-center bg-white p-3 rounded-xl shadow-sm mb-1">
-                        <span class="text-xs font-bold">${item.name}</span>
+                        <span class="text-xs font-bold text-slate-700">${item.name}</span>
                         <div class="flex items-center gap-3">
-                            <span class="font-black text-sm">${item.price}</span>
-                            <button onclick="cart.splice(${index},1); renderCart()" class="text-red-400"><i class="fas fa-times-circle"></i></button>
+                            <span class="font-black text-sm">${item.price.toLocaleString()}</span>
+                            <button onclick="cart.splice(${idx},1); renderCart()" class="text-red-400 px-2"><i class="fas fa-times-circle"></i></button>
                         </div>
                     </div>`;
             });
-            document.getElementById('cart-total-display').innerText = `Total: ${total}`;
+            document.getElementById('cart-total-display').innerText = `Ksh ${total.toLocaleString()}`;
         }
 
         function checkout(method) {
-            if(cart.length === 0) return;
-            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            if(!cart.length) return;
+            const total = cart.reduce((s, i) => s + i.price, 0);
             const desc = cart.map(i => i.name).join(", ");
             
-            const record = {
-                timestamp: Date.now(),
-                type: 'Sale',
-                method: method,
-                amount: total,
-                desc: desc
-            };
+            appData.transactions.unshift({
+                timestamp: Date.now(), type: 'Sale', method: method, amount: total, desc: desc
+            });
             
-            appData.transactions.unshift(record);
             cart = [];
-            renderCart();
             saveData();
-            updateStats();
-            renderHistory();
+            renderAll();
             switchView('dashboard');
         }
 
         function recordExpense(method) {
             const desc = document.getElementById('exp-desc').value;
             const amt = parseFloat(document.getElementById('exp-amount').value);
-            if(!desc || !amt) return;
-
-            appData.transactions.unshift({
-                timestamp: Date.now(), type: 'Expense', method: method, amount: amt, desc: desc
-            });
-            
-            document.getElementById('exp-desc').value = "";
-            document.getElementById('exp-amount').value = "";
-            saveData();
-            updateStats();
-            renderHistory();
-            switchView('dashboard');
+            if(desc && amt) {
+                appData.transactions.unshift({
+                    timestamp: Date.now(), type: 'Expense', method: method, amount: amt, desc: desc
+                });
+                document.getElementById('exp-desc').value = "";
+                document.getElementById('exp-amount').value = "";
+                saveData();
+                renderAll();
+                switchView('dashboard');
+            }
         }
 
-        // --- DASHBOARD & STATS ---
+        // --- STATS & LOGS ---
         function updateStats() {
-            const today = new Date().toDateString();
+            const todayStr = new Date().toDateString();
             let cash = 0, mpesa = 0;
-            
             appData.transactions.forEach(t => {
-                if(new Date(t.timestamp).toDateString() === today) {
-                    const factor = t.type === 'Sale' ? 1 : -1;
-                    if(t.method === 'Cash') cash += (t.amount * factor);
-                    else mpesa += (t.amount * factor);
+                if(new Date(t.timestamp).toDateString() === todayStr) {
+                    const sign = t.type === 'Sale' ? 1 : -1;
+                    if(t.method === 'Cash') cash += (t.amount * sign);
+                    else mpesa += (t.amount * sign);
                 }
             });
-            
             document.getElementById('stat-cash').innerText = cash.toLocaleString();
             document.getElementById('stat-mpesa').innerText = mpesa.toLocaleString();
         }
@@ -334,19 +300,18 @@
                 const time = new Date(t.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
                 const date = new Date(t.timestamp).toLocaleDateString([], {day:'numeric', month:'short'});
                 const isSale = t.type === 'Sale';
-                
                 list.innerHTML += `
                     <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm border border-slate-50">
                         <div class="max-w-[70%]">
                             <p class="font-bold text-slate-800 text-xs truncate">${t.desc}</p>
-                            <p class="text-[9px] font-black uppercase text-slate-400 mt-1">${date} • ${time} • <span class="${t.method === 'Mpesa' ? 'text-emerald-500' : 'text-amber-600'}">${t.method}</span></p>
+                            <p class="text-[9px] font-black uppercase text-slate-300 mt-1">${date} • ${time} • <span class="${t.method === 'Mpesa' ? 'text-emerald-500' : 'text-amber-600'}">${t.method}</span></p>
                         </div>
-                        <p class="font-black ${isSale ? 'text-slate-900' : 'text-red-500'}">${isSale ? '' : '-'}${t.amount}</p>
+                        <p class="font-black text-sm ${isSale ? 'text-slate-900' : 'text-red-500'}">${isSale ? '' : '-'}${t.amount.toLocaleString()}</p>
                     </div>`;
             });
         }
 
-        // --- INVENTORY ---
+        // --- STOCK ---
         function renderInventory() {
             const list = document.getElementById('stock-list');
             list.innerHTML = "";
@@ -354,12 +319,12 @@
                 list.innerHTML += `
                     <div class="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
                         <div class="w-1/2">
-                            <p class="font-bold text-sm">${item.name}</p>
-                            <p class="text-[10px] text-slate-400 uppercase">Opening: ${item.open} ${item.unit}</p>
+                            <p class="font-bold text-sm text-slate-700">${item.name}</p>
+                            <p class="text-[9px] text-slate-400 uppercase font-black tracking-tighter">Opened: ${item.open} ${item.unit}</p>
                         </div>
                         <div class="flex items-center gap-2">
-                            <input type="number" onchange="updateStock(${item.id}, this.value)" value="${item.now}" class="w-16 bg-slate-100 p-2 rounded-lg font-bold text-center text-sm outline-none">
-                            <span class="text-[10px] font-bold text-slate-400">${item.unit}</span>
+                            <input type="number" step="0.1" onchange="updateStock(${item.id}, this.value)" value="${item.now}" class="w-16 bg-slate-100 p-2 rounded-xl font-bold text-center text-xs outline-none">
+                            <span class="text-[10px] font-black text-slate-300 uppercase">${item.unit}</span>
                         </div>
                     </div>`;
             });
@@ -372,15 +337,14 @@
         }
 
         function addNewStockItem() {
-            const name = prompt("Material Name (e.g. Flour):");
-            const unit = prompt("Unit (e.g. Kg):");
-            if(name && unit) {
-                appData.inventory.push({ id: Date.now(), name, unit, now: 0, open: 0 });
+            const n = prompt("Item Name:");
+            const u = prompt("Unit (e.g. Kg, Ltr):");
+            if(n && u) {
+                appData.inventory.push({ id: Date.now(), name: n, unit: u, now: 0, open: 0 });
                 saveData(); renderInventory();
             }
         }
 
-        // --- UTILS ---
         function switchView(view) {
             ['dashboard', 'pos', 'inventory', 'expense'].forEach(v => {
                 document.getElementById('view-'+v).classList.add('hidden');
@@ -390,7 +354,7 @@
             document.getElementById('nav-'+view).classList.add('active');
         }
 
-        function syncWithCloud() { alert("Backing up to Google Sheets..."); }
+        function syncWithCloud() { alert("Cloud Backup Triggered..."); }
 
     </script>
 </body>
