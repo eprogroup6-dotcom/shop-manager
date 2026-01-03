@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Nexgen Hotel V10.3</title>
+    <title>Nexgen Hotel V10.4 PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -23,7 +23,7 @@
 
     <div id="auth-overlay" class="fixed inset-0 z-[100] glass-header flex flex-col items-center justify-center p-10 text-center">
         <h1 class="text-6xl font-extrabold text-white tracking-tighter mb-2">NEXGEN</h1>
-        <p class="text-emerald-400 text-sm uppercase tracking-[0.4em] mb-12 font-bold italic">HOTEL V10.3</p>
+        <p class="text-emerald-400 text-sm uppercase tracking-[0.4em] mb-12 font-bold italic">HOTEL V10.4 PRO</p>
         <div class="w-full max-w-[280px] space-y-6">
             <input type="password" id="pin-input" inputmode="numeric" placeholder="••••" class="bg-white/10 border-2 border-white/20 rounded-3xl p-6 text-center text-6xl text-white tracking-[0.2em] w-full outline-none focus:border-emerald-500 transition-all">
             <button onclick="checkPin()" class="w-full bg-emerald-500 text-white font-black py-6 rounded-[2.5rem] active:scale-95 text-2xl shadow-2xl">LOG IN</button>
@@ -41,7 +41,7 @@
             
             <div class="grid grid-cols-3 gap-3 mt-6">
                 <div class="bg-white/5 p-2 rounded-2xl border border-white/10">
-                    <p class="text-[8px] text-white/50 font-bold uppercase">Today</p>
+                    <p class="text-[8px] text-white/50 font-bold uppercase">Net Today</p>
                     <p id="stat-profit" class="text-lg font-black text-white">0</p>
                 </div>
                 <div class="bg-white/5 p-2 rounded-2xl border border-white/10">
@@ -56,66 +56,102 @@
         </div>
 
         <div class="flex-1 overflow-y-auto no-scrollbar pb-32">
+            
             <div id="view-dashboard" class="p-5 space-y-4">
+                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest px-2">Recent Activity</h3>
                 <div id="history-list" class="space-y-2"></div>
             </div>
 
             <div id="view-pos" class="hidden p-5 space-y-4">
                 <div class="bg-white p-5 rounded-[2.5rem] shadow-sm border border-slate-100">
-                    <div id="cart-list" class="space-y-2 min-h-[80px]"></div>
+                    <div id="cart-list" class="space-y-2 min-h-[100px]"></div>
                     <div class="border-t mt-4 pt-4 flex justify-between items-center">
+                        <span class="text-xs font-black text-slate-400 uppercase">Total Ksh</span>
                         <span id="cart-total" class="text-3xl font-black text-indigo-600">0</span>
                     </div>
                 </div>
-                <select id="item-dropdown" class="w-full p-5 bg-white border-2 rounded-3xl font-bold"></select>
-                <button onclick="addItemToCart()" class="w-full bg-slate-900 text-white py-5 rounded-3xl font-black uppercase">Add Item</button>
-                <div class="grid grid-cols-2 gap-4">
-                    <button onclick="checkout('Cash')" class="theme-cash py-6 rounded-3xl font-black">CASH</button>
-                    <button onclick="checkout('Mpesa')" class="theme-mpesa py-6 rounded-3xl font-black">M-PESA</button>
+                <select id="item-dropdown" class="w-full p-5 bg-white border-2 border-slate-100 rounded-3xl font-bold"></select>
+                <div class="flex gap-3">
+                    <input type="number" id="pos-qty" value="1" class="w-1/4 p-5 bg-white border-2 border-slate-100 rounded-3xl font-black text-center">
+                    <button onclick="addItemToCart()" class="w-3/4 bg-slate-900 text-white rounded-3xl font-black uppercase">Add to Order</button>
+                </div>
+                <div class="grid grid-cols-2 gap-4 pt-2">
+                    <button onclick="checkout('Cash')" class="theme-cash py-6 rounded-3xl font-black shadow-lg">CASH</button>
+                    <button onclick="checkout('Mpesa')" class="theme-mpesa py-6 rounded-3xl font-black shadow-lg">M-PESA</button>
                 </div>
             </div>
+
+            <div id="view-inventory" class="hidden p-5 space-y-6">
+                <div class="bg-white rounded-3xl p-5 shadow-lg border border-slate-100">
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="text-xs font-black text-slate-400 uppercase">Menu Editor</h4>
+                        <button onclick="unlockAdmin()" id="admin-btn" class="bg-indigo-50 text-indigo-600 px-4 py-1 rounded-full font-bold text-[10px] uppercase">Unlock Admin</button>
+                    </div>
+                    <div id="menu-list" class="space-y-3 mb-4"></div>
+                    <button onclick="addNewMenuItem()" class="w-full py-3 border-2 border-dashed border-indigo-200 rounded-2xl text-indigo-400 text-[10px] font-black uppercase">+ Add Menu Item</button>
+                </div>
+                <div class="bg-white rounded-3xl p-5 shadow-lg border border-slate-100">
+                    <h4 class="text-xs font-black text-slate-400 uppercase mb-4">Raw Materials / Stock</h4>
+                    <div id="stock-list" class="space-y-4"></div>
+                </div>
+            </div>
+
+            <div id="view-expense" class="hidden p-5 space-y-4">
+                <div class="bg-white rounded-[2.5rem] p-6 shadow-xl border border-slate-100 space-y-4">
+                    <h2 class="text-lg font-black uppercase">Record Spending</h2>
+                    <input type="text" id="exp-name" placeholder="What did you buy?" class="w-full p-4 bg-slate-50 border-2 rounded-2xl font-bold">
+                    <input type="number" id="exp-amount" placeholder="Amount (Ksh)" class="w-full p-4 bg-slate-50 border-2 rounded-2xl font-bold">
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="recordExpense('Cash')" class="theme-cash py-4 rounded-2xl font-bold">PAID CASH</button>
+                        <button onclick="recordExpense('Mpesa')" class="theme-mpesa py-4 rounded-2xl font-bold">PAID MPESA</button>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
-        <div class="fixed bottom-0 left-0 right-0 bg-white border-t px-8 py-4 pb-10 flex justify-between z-50">
-            <button onclick="switchView('dashboard')" class="nav-item active w-1/4" id="nav-dashboard"><i class="fas fa-home text-xl block"></i></button>
+        <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-8 py-4 pb-10 flex justify-between items-center z-50">
+            <button onclick="switchView('dashboard')" class="nav-item active w-1/4" id="nav-dashboard"><i class="fas fa-chart-line text-xl block"></i></button>
             <button onclick="switchView('pos')" class="nav-item w-1/4" id="nav-pos"><i class="fas fa-plus-circle text-2xl block"></i></button>
+            <button onclick="switchView('inventory')" class="nav-item w-1/4" id="nav-inventory"><i class="fas fa-utensils text-xl block"></i></button>
+            <button onclick="switchView('expense')" class="nav-item w-1/4" id="nav-expense"><i class="fas fa-receipt text-xl block"></i></button>
         </div>
     </div>
 
     <script>
         const CLOUD_URL = "https://script.google.com/macros/s/AKfycbykRzrqQKqXah1m4RvEqjBCetFRZ8ok_o_-NQbCfKk-HnVOH4fdgIBNQKCcW1D6RN3fKQ/exec";
-        
+        const ADMIN_PIN = "9999";
+        let isAdmin = false;
+
         let appData = {
             transactions: [],
-            menu: [{ id: 1, name: "Tea", price: 30 }, { id: 2, name: "Chapati", price: 20 }]
+            menu: [{ id: 1, name: "Tea", price: 30 }, { id: 2, name: "Chapati", price: 20 }],
+            inventory: [{ id: 10, name: "Milk", unit: "Ltr", now: 0 }]
         };
         let cart = [];
 
         function checkPin() {
-            const pin = document.getElementById('pin-input').value;
-            if(pin === "0000") {
-                document.getElementById('auth-overlay').classList.add('hidden');
+            const val = document.getElementById('pin-input').value;
+            if(val === "0000") {
+                document.getElementById('auth-overlay').style.display = 'none';
                 document.getElementById('app-ui').classList.remove('hidden');
                 init();
-            } else {
-                alert("Incorrect PIN");
-                document.getElementById('pin-input').value = "";
-            }
+            } else { alert("Wrong PIN"); document.getElementById('pin-input').value = ""; }
         }
 
         function init() {
-            const local = localStorage.getItem('nexgen_hotel_data');
+            const local = localStorage.getItem('nexgen_v10_final');
             if(local) appData = JSON.parse(local);
+            startClock();
             renderAll();
             manualSync();
-            startClock();
         }
 
         function startClock() {
             setInterval(() => {
                 const now = new Date();
                 document.getElementById('big-clock').innerText = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-                document.getElementById('big-date').innerText = now.toLocaleDateString('en-GB', { day:'2-digit', month:'long' });
+                document.getElementById('big-date').innerText = now.toLocaleDateString('en-GB', { day:'2-digit', month:'long', year:'numeric' });
             }, 1000);
         }
 
@@ -125,28 +161,36 @@
             try {
                 const res = await fetch(CLOUD_URL);
                 const cloud = await res.json();
-                if(cloud.menu) {
-                    appData.menu = cloud.menu;
-                    localStorage.setItem('nexgen_hotel_data', JSON.stringify(appData));
-                    renderAll();
+                const data = cloud.payload || cloud;
+                if(data.menu) {
+                    appData.menu = data.menu;
+                    appData.inventory = data.inventory || appData.inventory;
+                    save(); renderAll();
                     status.innerText = "Updated";
                 }
             } catch(e) { status.innerText = "Offline"; }
         }
 
+        function save() { localStorage.setItem('nexgen_v10_final', JSON.stringify(appData)); }
+
         function addItemToCart() {
-            const idx = document.getElementById('item-dropdown').value;
-            const item = appData.menu[idx];
-            cart.push({ ...item });
-            renderCart();
+            const item = appData.menu[document.getElementById('item-dropdown').value];
+            const qty = parseFloat(document.getElementById('pos-qty').value);
+            if(qty > 0) {
+                cart.push({ name: item.name, price: item.price * qty, qty });
+                renderCart();
+            }
         }
 
         function renderCart() {
             const list = document.getElementById('cart-list');
             let total = 0;
-            list.innerHTML = cart.map((item, idx) => {
+            list.innerHTML = cart.map((item, i) => {
                 total += item.price;
-                return `<div class="flex justify-between font-bold text-sm"><span>${item.name}</span><span>${item.price}</span></div>`;
+                return `<div class="flex justify-between font-bold text-sm">
+                    <span>${item.qty}x ${item.name}</span>
+                    <span>${item.price} <button onclick="cart.splice(${i},1);renderCart()" class="text-rose-500 ml-2">×</button></span>
+                </div>`;
             }).join('');
             document.getElementById('cart-total').innerText = total;
         }
@@ -155,51 +199,74 @@
             if(!cart.length) return;
             const total = cart.reduce((s, i) => s + i.price, 0);
             const record = {
-                timestamp: Date.now(),
-                amount: total,
-                method: method,
-                desc: cart.map(i => i.name).join(', ')
+                timestamp: Date.now(), type: 'Sale', method, amount: total,
+                desc: cart.map(i => `${i.qty} ${i.name}`).join(", ")
             };
             appData.transactions.unshift(record);
-            localStorage.setItem('nexgen_hotel_data', JSON.stringify(appData));
-            cart = [];
-            renderAll();
-            switchView('dashboard');
-            // Background sync
-            fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(record) });
+            fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({syncType:"TRANSACTION", ...record}) });
+            cart = []; save(); renderAll(); switchView('dashboard');
+        }
+
+        function recordExpense(method) {
+            const name = document.getElementById('exp-name').value;
+            const amount = parseFloat(document.getElementById('exp-amount').value);
+            if(!name || !amount) return alert("Enter details");
+            const record = {
+                timestamp: Date.now(), type: 'Expense', method, amount: amount,
+                desc: `Paid: ${name}`
+            };
+            appData.transactions.unshift(record);
+            fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({syncType:"TRANSACTION", ...record}) });
+            document.getElementById('exp-name').value = ""; document.getElementById('exp-amount').value = "";
+            save(); renderAll(); switchView('dashboard');
+        }
+
+        function unlockAdmin() {
+            if(prompt("Admin PIN:") === ADMIN_PIN) {
+                isAdmin = true; document.getElementById('admin-btn').innerText = "Admin ON"; renderAll();
+            }
         }
 
         function renderAll() {
-            document.getElementById('item-dropdown').innerHTML = appData.menu.map((m, i) => `<option value="${i}">${m.name} - ${m.price}</option>`).join('');
-            
-            let daily = 0, cash = 0, mpesa = 0;
+            document.getElementById('item-dropdown').innerHTML = appData.menu.map((m,i) => `<option value="${i}">${m.name} - ${m.price}</option>`).join("");
+            document.getElementById('menu-list').innerHTML = appData.menu.map(item => `
+                <div class="bg-slate-50 p-4 rounded-2xl flex justify-between items-center">
+                    <span class="text-xs font-black uppercase">${item.name}</span>
+                    <span class="font-bold text-xs text-indigo-600">Ksh ${item.price}</span>
+                </div>`).join("");
+
+            document.getElementById('stock-list').innerHTML = appData.inventory.map(item => `
+                <div class="bg-slate-50 p-4 rounded-2xl flex justify-between items-center border border-slate-100">
+                    <span class="text-xs font-black uppercase">${item.name}</span>
+                    <span class="text-xs font-bold text-slate-400">${item.now} ${item.unit}</span>
+                </div>`).join("");
+
+            let net = 0, cash = 0, mpesa = 0;
             const today = new Date().toDateString();
-            
             document.getElementById('history-list').innerHTML = appData.transactions.map(t => {
                 const isToday = new Date(t.timestamp).toDateString() === today;
                 if(isToday) {
-                    daily += t.amount;
-                    if(t.method === 'Cash') cash += t.amount; else mpesa += t.amount;
+                    if(t.type === 'Sale') { net += t.amount; if(t.method==='Cash') cash += t.amount; else mpesa += t.amount; }
+                    else { net -= t.amount; if(t.method==='Cash') cash -= t.amount; else mpesa -= t.amount; }
                 }
-                return `<div class="bg-white p-4 rounded-2xl flex justify-between shadow-sm">
-                    <span class="font-bold text-xs uppercase">${t.desc}</span>
-                    <span class="font-black text-indigo-600">${t.amount}</span>
+                return `<div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm">
+                    <div><p class="font-bold text-[10px] uppercase">${t.desc}</p><p class="text-[7px] text-slate-300 font-bold">${new Date(t.timestamp).toLocaleTimeString()}</p></div>
+                    <p class="font-black text-xs ${t.type==='Sale'?'text-emerald-600':'text-rose-500'}">${t.type==='Sale'?'':'-'}${t.amount}</p>
                 </div>`;
             }).join('');
 
-            document.getElementById('stat-profit').innerText = daily;
-            document.getElementById('stat-cash').innerText = cash;
-            document.getElementById('stat-mpesa').innerText = mpesa;
+            document.getElementById('stat-profit').innerText = net.toLocaleString();
+            document.getElementById('stat-cash').innerText = cash.toLocaleString();
+            document.getElementById('stat-mpesa').innerText = mpesa.toLocaleString();
         }
 
         function switchView(view) {
-            document.getElementById('view-dashboard').classList.add('hidden');
-            document.getElementById('view-pos').classList.add('hidden');
-            document.getElementById('nav-dashboard').classList.remove('active');
-            document.getElementById('nav-pos').classList.remove('active');
-            
-            document.getElementById('view-' + view).classList.remove('hidden');
-            document.getElementById('nav-' + view).classList.add('active');
+            ['dashboard', 'pos', 'inventory', 'expense'].forEach(v => {
+                document.getElementById('view-'+v).classList.add('hidden');
+                document.getElementById('nav-'+v).classList.remove('active');
+            });
+            document.getElementById('view-'+view).classList.remove('hidden');
+            document.getElementById('nav-'+view).classList.add('active');
         }
     </script>
 </body>
