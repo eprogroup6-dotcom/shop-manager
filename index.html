@@ -3,21 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Nexgen Pro V2</title>
+    <title>Nexgen Pro V3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; background-color: #f1f5f9; }
-        .glass-header { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); }
-        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
-        .nav-item.active { color: #4f46e5; }
+        
+        /* Modern Gradient Header */
+        .glass-header { background: linear-gradient(135deg, #0f172a 0%, #334155 100%); }
+        
+        /* M-Pesa & Cash Button Styling */
+        .btn-mpesa { background: #1eb91e; color: white; border-bottom: 4px solid #158015; } /* Safaricom Green */
+        .btn-mpesa:active { transform: translateY(2px); border-bottom: 0px; }
+        
+        .btn-cash { background: #ca8a04; color: white; border-bottom: 4px solid #a16207; } /* Note Gold/Brown */
+        .btn-cash:active { transform: translateY(2px); border-bottom: 0px; }
+
+        .nav-item.active { color: #1eb91e; } /* Active tab is now Green */
         .nav-item { color: #94a3b8; transition: all 0.3s; }
         
-        /* Custom Scrollbar for lists */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
         .spinning { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
@@ -26,180 +33,170 @@
 
     <div id="auth-overlay" class="fixed inset-0 z-[100] glass-header flex flex-col items-center justify-center p-10">
         <h1 class="text-6xl font-extrabold text-white tracking-tighter mb-2">NEXGEN</h1>
-        <p class="text-indigo-400 text-sm uppercase tracking-[0.4em] mb-12 font-bold italic">MANAGEMENT V2</p>
-        <input type="password" id="pin-input" inputmode="numeric" placeholder="••••" class="bg-white/10 border-2 border-white/20 rounded-3xl p-6 text-center text-6xl text-white tracking-[0.2em] w-full max-w-[280px] mb-8 outline-none focus:border-white">
-        <button onclick="checkPin()" class="w-full max-w-[280px] bg-white text-indigo-900 font-black py-6 rounded-[2.5rem] active:scale-95 text-2xl shadow-2xl">LOG IN</button>
+        <p class="text-emerald-400 text-sm uppercase tracking-[0.4em] mb-12 font-bold italic">RETAIL POS</p>
+        <input type="password" id="pin-input" inputmode="numeric" placeholder="••••" class="bg-white/10 border-2 border-white/20 rounded-3xl p-6 text-center text-6xl text-white tracking-[0.2em] w-full max-w-[280px] mb-8 outline-none focus:border-emerald-400">
+        <button onclick="checkPin()" class="w-full max-w-[280px] bg-emerald-500 text-white font-black py-6 rounded-[2.5rem] active:scale-95 text-2xl shadow-2xl">OPEN SHOP</button>
     </div>
 
     <div id="main-content" class="hidden flex-1 flex flex-col h-full bg-slate-50">
         
-        <div class="glass-header p-6 pt-12 pb-10 rounded-b-[3rem] shadow-xl relative z-10 shrink-0">
-            <div class="flex justify-between items-center text-white/60 text-[10px] font-black uppercase tracking-widest mb-6">
+        <div class="glass-header p-6 pt-12 pb-8 rounded-b-[2.5rem] shadow-xl relative z-10 shrink-0">
+            <div class="flex justify-between items-center text-white/60 text-[10px] font-black uppercase tracking-widest mb-4">
                 <div class="flex items-center gap-2">
-                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                    <span id="header-date">...</span>
+                    <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                    <span id="header-date">Today</span>
                 </div>
-                <button onclick="syncWithCloud()" id="sync-btn">
-                    <i class="fas fa-sync text-lg text-white"></i>
-                </button>
+                <button onclick="syncWithCloud()" id="sync-btn"><i class="fas fa-sync text-lg text-white"></i></button>
             </div>
             
-            <div id="header-dashboard" class="text-center text-white space-y-1">
-                <p class="text-xs font-bold opacity-60 uppercase tracking-widest">Net Profit (Today)</p>
-                <h1 id="stat-profit" class="text-5xl font-black tracking-tighter text-green-400 drop-shadow-lg">0</h1>
-                <div class="flex justify-center gap-6 mt-4">
-                    <div class="bg-white/10 px-4 py-2 rounded-xl">
-                        <span class="text-[10px] text-blue-300 block">CASH</span>
-                        <span id="stat-cash" class="font-bold">0</span>
+            <div id="header-dashboard" class="text-center text-white">
+                <p class="text-[10px] font-bold opacity-60 uppercase tracking-widest mb-1">Net Sales Today</p>
+                <h1 id="stat-profit" class="text-6xl font-black tracking-tighter text-white drop-shadow-lg mb-4">0</h1>
+                <div class="flex justify-center gap-4">
+                    <div class="bg-white/10 px-6 py-2 rounded-2xl border border-white/5">
+                        <span class="text-[10px] text-amber-300 block font-bold mb-1">CASH</span>
+                        <span id="stat-cash" class="font-bold text-xl">0</span>
                     </div>
-                    <div class="bg-white/10 px-4 py-2 rounded-xl">
-                        <span class="text-[10px] text-green-300 block">MPESA</span>
-                        <span id="stat-mpesa" class="font-bold">0</span>
+                    <div class="bg-white/10 px-6 py-2 rounded-2xl border border-white/5">
+                        <span class="text-[10px] text-emerald-300 block font-bold mb-1">MPESA</span>
+                        <span id="stat-mpesa" class="font-bold text-xl">0</span>
                     </div>
                 </div>
             </div>
 
             <div id="header-pos" class="hidden text-white">
-                <div class="flex justify-between items-end">
+                <div class="flex justify-between items-end px-2">
                     <div>
-                        <p class="text-xs font-bold opacity-60 uppercase">Cart Total</p>
-                        <h1 id="cart-total" class="text-5xl font-black text-white">0</h1>
+                        <p class="text-xs font-bold opacity-70 uppercase mb-1">Current Sale</p>
+                        <h1 id="cart-total" class="text-6xl font-black text-emerald-400">0</h1>
                     </div>
-                    <button onclick="clearCart()" class="text-xs bg-red-500/20 px-3 py-1 rounded-full hover:bg-red-500/40">Clear</button>
+                    <button onclick="clearCart()" class="text-xs bg-red-500/30 px-4 py-2 rounded-full font-bold hover:bg-red-500/50 transition">
+                        Clear Cart
+                    </button>
                 </div>
             </div>
         </div>
 
         <div class="flex-1 overflow-y-auto relative -mt-6 z-0 pt-8 pb-32 no-scrollbar" id="content-area">
             
-            <div id="view-dashboard" class="px-6 space-y-6">
-                <div id="stock-alert" class="hidden bg-rose-600 rounded-[2rem] p-6 text-white shadow-lg shadow-rose-900/20">
-                    <div class="flex items-center gap-3 mb-2">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <h4 class="font-bold text-xs uppercase">Low Stock Warning</h4>
-                    </div>
-                    <p id="stock-msg" class="text-sm font-medium">Some items are running low.</p>
-                </div>
-
-                <div class="flex justify-between items-center">
-                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">7-Day History</h3>
-                    <button onclick="clearHistory()" class="text-[10px] text-indigo-400 font-bold">CLEAR OLD</button>
+            <div id="view-dashboard" class="px-5 space-y-6">
+                <div class="flex justify-between items-center px-2">
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">Recent Sales</h3>
+                    <button onclick="clearHistory()" class="text-[10px] text-red-400 font-bold bg-red-50 px-3 py-1 rounded-full">RESET HISTORY</button>
                 </div>
                 <div id="history-list" class="space-y-3 pb-20"></div>
             </div>
 
-            <div id="view-pos" class="hidden px-6 h-full flex flex-col">
-                <div id="cart-list" class="flex-1 space-y-2 mb-4 overflow-y-auto max-h-[40vh]">
-                    <div class="text-center text-slate-400 py-10 text-sm">Cart is empty</div>
+            <div id="view-pos" class="hidden px-4 h-full flex flex-col pt-2">
+                
+                <div class="mb-4">
+                    <h4 class="text-[10px] text-slate-400 font-bold uppercase mb-2 tracking-widest ml-2">Quick Add</h4>
+                    <div id="quick-stock-chips" class="flex gap-2 overflow-x-auto pb-2 px-1 no-scrollbar">
+                        </div>
                 </div>
 
-                <div class="bg-white rounded-[2.5rem] p-6 shadow-xl border border-slate-100">
-                    <div class="grid grid-cols-3 gap-3 mb-4">
-                        <input type="text" id="pos-item-name" placeholder="Item Name" class="col-span-2 bg-slate-100 p-4 rounded-2xl font-bold outline-none text-slate-700">
-                        <input type="number" id="pos-qty" placeholder="Qty" value="1" class="bg-slate-100 p-4 rounded-2xl font-bold outline-none text-center text-slate-700">
+                <div class="bg-white rounded-[2rem] p-5 shadow-lg mb-4 border border-slate-100">
+                    <div class="flex gap-3 mb-3">
+                        <input type="text" id="pos-item-name" placeholder="Item Name (e.g. CV)" class="flex-[2] bg-slate-100 p-4 rounded-xl font-bold outline-none text-slate-700 text-sm">
+                        <input type="number" id="pos-qty" placeholder="1" class="flex-[1] bg-slate-100 p-4 rounded-xl font-bold outline-none text-center text-slate-700 text-sm">
                     </div>
-                    <div class="grid grid-cols-3 gap-3 mb-4">
-                         <input type="number" id="pos-price" placeholder="Price" class="col-span-2 bg-slate-100 p-4 rounded-2xl font-bold outline-none text-slate-700">
-                         <button onclick="addToCart()" class="bg-indigo-600 text-white rounded-2xl font-bold text-xl flex items-center justify-center shadow-lg active:scale-95">+</button>
+                    <div class="flex gap-3">
+                         <input type="number" id="pos-price" placeholder="Price" class="flex-[2] bg-slate-100 p-4 rounded-xl font-bold outline-none text-slate-700 text-sm">
+                         <button onclick="addToCart()" class="flex-[1] bg-slate-800 text-white rounded-xl font-bold text-xl shadow-lg active:scale-95">+</button>
                     </div>
-                    
-                    <h4 class="text-[10px] text-slate-400 font-bold uppercase mb-2 tracking-widest text-center">Quick Add Stock Items</h4>
-                    <div id="quick-stock-chips" class="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-                        </div>
+                </div>
 
-                    <div class="grid grid-cols-2 gap-4 mt-6">
-                        <button onclick="checkout('Cash')" class="bg-green-600 text-white py-4 rounded-2xl font-bold text-sm shadow-lg active:scale-95 flex flex-col items-center">
-                            <i class="fas fa-money-bill text-xl mb-1"></i> PAY CASH
-                        </button>
-                        <button onclick="checkout('Mpesa')" class="bg-blue-600 text-white py-4 rounded-2xl font-bold text-sm shadow-lg active:scale-95 flex flex-col items-center">
-                            <i class="fas fa-mobile-alt text-xl mb-1"></i> PAY MPESA
-                        </button>
-                    </div>
+                <div id="cart-list" class="flex-1 space-y-2 mb-4 overflow-y-auto">
+                    <div class="text-center text-slate-300 py-4 text-xs font-bold italic opacity-50">Empty Cart</div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mt-auto">
+                    <button onclick="checkout('Cash')" class="btn-cash py-5 rounded-2xl font-black text-sm shadow-xl flex flex-col items-center justify-center gap-1">
+                        <i class="fas fa-money-bill-wave text-2xl"></i>
+                        <span>CASH</span>
+                    </button>
+                    <button onclick="checkout('Mpesa')" class="btn-mpesa py-5 rounded-2xl font-black text-sm shadow-xl flex flex-col items-center justify-center gap-1">
+                        <div class="font-bold text-2xl italic">M-PESA</div>
+                    </button>
                 </div>
             </div>
 
-            <div id="view-inventory" class="hidden px-6 space-y-4">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">Stock Management</h3>
-                    <button onclick="addNewStockItem()" class="bg-indigo-600 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg">+ New Item</button>
-                </div>
+            <div id="view-inventory" class="hidden px-5 space-y-4 pt-2">
+                <button onclick="addNewStockItem()" class="w-full py-4 bg-slate-800 text-white rounded-2xl text-xs font-bold uppercase tracking-widest shadow-lg">+ Add New Product</button>
 
-                <div class="bg-white rounded-[2rem] p-6 shadow-lg border border-slate-100">
-                    <div class="flex text-[10px] text-slate-400 font-bold uppercase mb-4 border-b pb-2">
-                        <div class="w-1/2">Item</div>
-                        <div class="w-1/4 text-center">Open</div>
-                        <div class="w-1/4 text-center">Now</div>
+                <div class="bg-white rounded-[1.5rem] p-5 shadow-lg border border-slate-100">
+                    <div class="flex text-[9px] text-slate-400 font-black uppercase mb-3 px-2">
+                        <div class="w-[40%]">Item</div>
+                        <div class="w-[20%] text-center">Price</div>
+                        <div class="w-[20%] text-center">Open</div>
+                        <div class="w-[20%] text-center">Now</div>
                     </div>
                     <div id="stock-list" class="space-y-4">
                         </div>
                 </div>
-                <p class="text-[10px] text-slate-400 text-center italic mt-4">Opening stock resets automatically at midnight.</p>
             </div>
 
-             <div id="view-expense" class="hidden px-6">
-                <div class="bg-white rounded-[2.5rem] p-8 shadow-xl border-t-4 border-rose-500">
-                    <h2 class="text-2xl font-black text-rose-600 mb-6">Record Expense</h2>
-                    <input type="text" id="exp-desc" placeholder="Expense Description" class="w-full bg-slate-50 p-4 rounded-2xl font-bold mb-4 outline-none">
-                    <input type="number" id="exp-amount" placeholder="Amount" class="w-full bg-slate-50 p-4 rounded-2xl font-bold mb-6 outline-none text-2xl">
-                    <div class="grid grid-cols-2 gap-4">
-                        <button onclick="recordExpense('Cash')" class="bg-slate-800 text-white py-4 rounded-2xl font-bold">Cash Out</button>
-                        <button onclick="recordExpense('Mpesa')" class="bg-slate-800 text-white py-4 rounded-2xl font-bold">Mpesa Out</button>
+             <div id="view-expense" class="hidden px-5 pt-2">
+                <div class="bg-white rounded-[2rem] p-6 shadow-xl border-l-4 border-rose-500">
+                    <h2 class="text-xl font-black text-slate-800 mb-4 uppercase">Record Expense</h2>
+                    <input type="text" id="exp-desc" placeholder="Details (e.g. Lunch)" class="w-full bg-slate-50 p-4 rounded-xl font-bold mb-3 outline-none text-sm">
+                    <input type="number" id="exp-amount" placeholder="Amount" class="w-full bg-slate-50 p-4 rounded-xl font-bold mb-6 outline-none text-2xl">
+                    <div class="flex gap-3">
+                        <button onclick="recordExpense('Cash')" class="flex-1 bg-slate-200 text-slate-600 py-3 rounded-xl font-bold text-xs uppercase">Paid Cash</button>
+                        <button onclick="recordExpense('Mpesa')" class="flex-1 bg-slate-200 text-slate-600 py-3 rounded-xl font-bold text-xs uppercase">Paid Mpesa</button>
                     </div>
                 </div>
             </div>
-
         </div>
 
-        <div class="bg-white border-t border-slate-100 px-6 py-4 pb-8 flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.05)] z-50">
+        <div class="bg-white border-t border-slate-100 px-6 py-3 pb-8 flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.03)] z-50">
             <button onclick="switchView('dashboard')" class="nav-item active flex flex-col items-center gap-1 w-1/4" id="nav-dashboard">
-                <i class="fas fa-chart-pie text-xl"></i>
-                <span class="text-[10px] font-bold">Home</span>
+                <i class="fas fa-home text-lg"></i>
+                <span class="text-[9px] font-bold uppercase">Home</span>
             </button>
             <button onclick="switchView('pos')" class="nav-item flex flex-col items-center gap-1 w-1/4" id="nav-pos">
-                <div class="bg-indigo-600 text-white w-12 h-12 rounded-full flex items-center justify-center -mt-8 shadow-indigo-500/50 shadow-lg border-4 border-white">
-                    <i class="fas fa-calculator"></i>
+                <div class="bg-slate-900 text-white w-12 h-12 rounded-2xl flex items-center justify-center -mt-8 shadow-xl border-[4px] border-slate-50">
+                    <i class="fas fa-plus text-lg"></i>
                 </div>
-                <span class="text-[10px] font-bold mt-1">POS</span>
+                <span class="text-[9px] font-bold uppercase mt-1">Sell</span>
             </button>
             <button onclick="switchView('inventory')" class="nav-item flex flex-col items-center gap-1 w-1/4" id="nav-inventory">
-                <i class="fas fa-boxes text-xl"></i>
-                <span class="text-[10px] font-bold">Stock</span>
+                <i class="fas fa-box-open text-lg"></i>
+                <span class="text-[9px] font-bold uppercase">Stock</span>
             </button>
             <button onclick="switchView('expense')" class="nav-item flex flex-col items-center gap-1 w-1/4" id="nav-expense">
-                <i class="fas fa-receipt text-xl"></i>
-                <span class="text-[10px] font-bold">Exp</span>
+                <i class="fas fa-minus-circle text-lg"></i>
+                <span class="text-[9px] font-bold uppercase">Exp</span>
             </button>
         </div>
     </div>
 
     <script>
-        const MY_PIN = "0000"; // CHANGE THIS
+        const MY_PIN = "0000"; 
         const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbylWHKijKWcgS3GtJayjtE8RcdW3m4f_IF1zZqUMj0QwpmwD2aXPHisP5ALOlsqVR38Gw/exec";
 
-        // --- STATE MANAGEMENT ---
         let appData = {
             transactions: [],
             inventory: [
                 { id: 1, name: "Printing", price: 10, open: 100, now: 100 },
                 { id: 2, name: "Photocopy", price: 5, open: 500, now: 500 },
-                { id: 3, name: "Lamination", price: 50, open: 20, now: 20 }
+                { id: 3, name: "Scanning", price: 20, open: 0, now: 0 },
+                { id: 4, name: "Lamination", price: 50, open: 20, now: 20 }
             ],
             lastDate: new Date().toDateString()
         };
         let cart = [];
 
-        // --- INIT ---
         function init() {
-            const saved = localStorage.getItem('nexgen_v2');
+            const saved = localStorage.getItem('nexgen_v3');
             if(saved) {
                 appData = JSON.parse(saved);
-                cleanOldHistory(); // Requirement 1: 7 Days
-                checkNewDay();     // Requirement 5: Opening Stock logic
+                checkNewDay(); 
             }
             updateDashboard();
             renderInventory();
             renderStockChips();
-            document.getElementById('header-date').innerText = new Date().toDateString();
+            document.getElementById('header-date').innerText = new Date().toLocaleDateString('en-GB', {day:'numeric', month:'short'});
         }
 
         function checkPin() {
@@ -210,40 +207,26 @@
             } else { alert("Incorrect PIN"); document.getElementById('pin-input').value = ""; }
         }
 
-        function saveData() {
-            localStorage.setItem('nexgen_v2', JSON.stringify(appData));
-        }
+        function saveData() { localStorage.setItem('nexgen_v3', JSON.stringify(appData)); }
 
+        // RESET LOGIC: Resets 'Opening Stock' at midnight, but KEEPS history
         function checkNewDay() {
             const today = new Date().toDateString();
             if(appData.lastDate !== today) {
-                // It's a new day! Reset Opening stock to match Current stock
-                appData.inventory.forEach(item => {
-                    item.open = item.now;
-                });
+                appData.inventory.forEach(item => { item.open = item.now; });
                 appData.lastDate = today;
                 saveData();
             }
         }
 
-        function cleanOldHistory() {
-            const limit = Date.now() - (7 * 24 * 60 * 60 * 1000); // 7 Days ago
-            appData.transactions = appData.transactions.filter(t => t.timestamp > limit);
-            saveData();
-        }
-
-        // --- VIEW SWITCHING ---
         function switchView(view) {
-            // Hide all views
             ['dashboard', 'pos', 'inventory', 'expense'].forEach(v => {
                 document.getElementById('view-'+v).classList.add('hidden');
-                document.getElementById('nav-'+v).classList.remove('active', 'text-indigo-600');
+                document.getElementById('nav-'+v).classList.remove('active');
             });
-            // Show selected
             document.getElementById('view-'+view).classList.remove('hidden');
             document.getElementById('nav-'+view).classList.add('active');
             
-            // Header Toggle
             if(view === 'pos') {
                 document.getElementById('header-dashboard').classList.add('hidden');
                 document.getElementById('header-pos').classList.remove('hidden');
@@ -253,29 +236,24 @@
             }
         }
 
-        // --- POS & CART SYSTEM (Requirement 3) ---
-        function addToCart() {
-            const name = document.getElementById('pos-item-name').value;
-            const price = parseFloat(document.getElementById('pos-price').value);
-            const qty = parseInt(document.getElementById('pos-qty').value) || 1;
+        // --- POS & CART ---
+        function addToCart(manualName, manualPrice) {
+            let name = manualName || document.getElementById('pos-item-name').value;
+            let price = manualPrice !== undefined ? manualPrice : parseFloat(document.getElementById('pos-price').value);
+            let qty = 1;
 
-            if(!name || !price) return alert("Enter item and price");
+            // If adding manually from input fields
+            if(!manualName) {
+                qty = parseInt(document.getElementById('pos-qty').value) || 1;
+                if(!name || !price) return; 
+                // Clear inputs
+                document.getElementById('pos-item-name').value = "";
+                document.getElementById('pos-price').value = "";
+                document.getElementById('pos-qty').value = "";
+            }
 
             cart.push({ name, price, qty, total: price * qty });
             renderCart();
-            
-            // Reset fields
-            document.getElementById('pos-item-name').value = "";
-            document.getElementById('pos-price').value = "";
-            document.getElementById('pos-qty').value = "1";
-        }
-
-        function addStockToCart(id) {
-            const item = appData.inventory.find(i => i.id === id);
-            if(item) {
-                cart.push({ name: item.name, price: item.price, qty: 1, total: item.price, isStock: true, stockId: id });
-                renderCart();
-            }
         }
 
         function renderCart() {
@@ -285,63 +263,60 @@
 
             cart.forEach((item, index) => {
                 total += item.total;
+                // Simple View: "Printing" or "Printing (5)"
+                let displayQty = item.qty > 1 ? `(${item.qty})` : '';
+                
                 list.innerHTML += `
-                    <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-slate-50">
-                        <div>
-                            <div class="font-bold text-slate-700">${item.name} <span class="text-xs text-slate-400">x${item.qty}</span></div>
-                        </div>
+                    <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <div class="font-bold text-slate-700 text-sm">${item.name} <span class="text-slate-400 text-xs">${displayQty}</span></div>
                         <div class="flex items-center gap-3">
-                            <span class="font-bold text-indigo-600">${item.total}</span>
-                            <button onclick="cart.splice(${index},1); renderCart()" class="text-red-400"><i class="fas fa-times"></i></button>
+                            <span class="font-black text-slate-900">${item.total}</span>
+                            <button onclick="cart.splice(${index},1); renderCart()" class="text-red-400 px-2">x</button>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
 
+            if(cart.length === 0) list.innerHTML = '<div class="text-center text-slate-300 py-4 text-xs font-bold italic opacity-50">Empty Cart</div>';
             document.getElementById('cart-total').innerText = total.toLocaleString();
         }
 
         function clearCart() { cart = []; renderCart(); }
 
-        // --- CHECKOUT & TRANSACTION (Requirement 4) ---
+        // --- CHECKOUT ---
         function checkout(method) {
             if(cart.length === 0) return alert("Cart Empty");
             
             let totalAmt = 0;
-            let descStr = "";
+            let itemNames = [];
 
             cart.forEach(item => {
                 totalAmt += item.total;
-                descStr += `${item.qty}x ${item.name}, `;
+                // CLEAN OUTPUT: If Qty > 1 show (X), else just Name
+                itemNames.push(item.qty > 1 ? `${item.name} (${item.qty})` : item.name);
                 
-                // Deduct Inventory
-                if(item.isStock) {
-                    const stockItem = appData.inventory.find(i => i.id === item.stockId);
-                    if(stockItem) stockItem.now -= item.qty;
-                }
+                // Deduct Inventory if name matches
+                const stockItem = appData.inventory.find(i => i.name === item.name);
+                if(stockItem) stockItem.now -= item.qty;
             });
 
             const record = {
                 id: Date.now(),
-                timestamp: Date.now(), // Real JS Date object
+                timestamp: Date.now(),
                 type: 'Sale',
-                desc: descStr.slice(0, -2), // Remove trailing comma
+                desc: itemNames.join(", "), // Simple clean string
                 amount: totalAmt,
                 method: method
             };
 
             appData.transactions.unshift(record);
             saveData();
-            
-            // Send to cloud
             sendToCloud(record);
-
+            
             cart = [];
             renderCart();
-            renderInventory(); // Update stock UI
+            renderInventory(); 
             updateDashboard();
             switchView('dashboard');
-            alert(`Sale Recored: ${method}`);
         }
 
         function recordExpense(method) {
@@ -349,15 +324,7 @@
             const amt = parseFloat(document.getElementById('exp-amount').value);
             if(!desc || !amt) return;
 
-            const record = {
-                id: Date.now(),
-                timestamp: Date.now(),
-                type: 'Expense',
-                desc: desc,
-                amount: amt,
-                method: method
-            };
-
+            const record = { id: Date.now(), timestamp: Date.now(), type: 'Expense', desc: desc, amount: amt, method: method };
             appData.transactions.unshift(record);
             saveData();
             sendToCloud(record);
@@ -368,59 +335,38 @@
             switchView('dashboard');
         }
 
-        // --- DASHBOARD & HISTORY (Requirement 2: Date + Exact Time) ---
+        // --- DASHBOARD ---
         function updateDashboard() {
             const list = document.getElementById('history-list');
             list.innerHTML = "";
             
-            // Filter today for totals
-            const todayStart = new Date();
-            todayStart.setHours(0,0,0,0);
-            
+            const todayStart = new Date(); todayStart.setHours(0,0,0,0);
             let profit = 0, cash = 0, mpesa = 0;
 
             appData.transactions.forEach(t => {
                 const isSale = t.type === 'Sale';
-                const isToday = t.timestamp >= todayStart.getTime();
-
-                if(isToday) {
-                    if(isSale) {
-                        profit += t.amount;
-                        if(t.method === 'Cash') cash += t.amount;
-                        else mpesa += t.amount;
-                    } else {
-                        profit -= t.amount;
-                        if(t.method === 'Cash') cash -= t.amount;
-                        else mpesa -= t.amount;
-                    }
+                if(t.timestamp >= todayStart.getTime()) {
+                    if(isSale) { profit += t.amount; if(t.method === 'Cash') cash += t.amount; else mpesa += t.amount; } 
+                    else { profit -= t.amount; if(t.method === 'Cash') cash -= t.amount; else mpesa -= t.amount; }
                 }
 
-                // Render History List (Req 2: Date & Time)
-                const dateObj = new Date(t.timestamp);
-                const dateStr = dateObj.toLocaleDateString();
-                const timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
+                // Render History (Clean & Simple)
+                const timeStr = new Date(t.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const methodColor = t.method === 'Cash' ? 'text-amber-500' : 'text-emerald-500';
+                
                 list.innerHTML += `
-                    <div class="bg-white p-5 rounded-[2rem] flex justify-between items-center shadow-sm border border-slate-50">
-                        <div class="flex items-center gap-4">
-                            <div class="bg-slate-50 p-3 rounded-full text-slate-400">
-                                <i class="fas ${t.method === 'Cash' ? 'fa-money-bill' : 'fa-mobile-alt'}"></i>
-                            </div>
-                            <div>
-                                <p class="font-bold text-slate-800 text-sm leading-tight">${t.desc}</p>
-                                <p class="text-[10px] text-slate-400 font-bold uppercase mt-1">
-                                    ${dateStr} <span class="text-indigo-400">• ${timeStr}</span>
-                                </p>
+                    <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm border border-slate-50">
+                        <div>
+                            <p class="font-bold text-slate-800 text-sm leading-tight">${t.desc}</p>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="text-[9px] font-black uppercase text-slate-300">${timeStr}</span>
+                                <span class="text-[9px] font-black uppercase ${methodColor}">${t.method}</span>
                             </div>
                         </div>
-                        <div class="text-right">
-                            <p class="font-black text-lg ${isSale ? 'text-green-500' : 'text-rose-500'}">
-                                ${isSale ? '+' : '-'}${t.amount.toLocaleString()}
-                            </p>
-                            <span class="text-[10px] font-bold text-slate-300 uppercase">${t.type}</span>
-                        </div>
-                    </div>
-                `;
+                        <p class="font-black text-lg ${isSale ? 'text-slate-800' : 'text-rose-500'}">
+                            ${isSale ? '' : '-'}${t.amount.toLocaleString()}
+                        </p>
+                    </div>`;
             });
 
             document.getElementById('stat-profit').innerText = profit.toLocaleString();
@@ -428,79 +374,54 @@
             document.getElementById('stat-mpesa').innerText = mpesa.toLocaleString();
         }
 
-        // --- INVENTORY MANAGEMENT (Requirement 5) ---
+        // --- INVENTORY ---
         function renderInventory() {
             const list = document.getElementById('stock-list');
             list.innerHTML = "";
-            
             appData.inventory.forEach(item => {
                 list.innerHTML += `
-                    <div class="flex items-center justify-between py-3 border-b border-slate-50 last:border-0">
-                        <div class="w-1/2">
-                            <div class="font-bold text-sm text-slate-700">${item.name}</div>
-                            <div class="text-[10px] text-slate-400">Price: ${item.price}</div>
+                    <div class="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
+                        <div class="w-[40%] font-bold text-xs text-slate-700">${item.name}</div>
+                        <div class="w-[20%] text-center">
+                            <input type="number" onchange="updateStockPrice(${item.id}, this.value)" value="${item.price}" class="w-12 text-center bg-slate-100 rounded text-xs font-bold py-1 outline-none">
                         </div>
-                        <div class="w-1/4 text-center font-mono text-xs text-slate-400">${item.open}</div>
-                        <div class="w-1/4 text-center">
-                            <input type="number" onchange="updateStock(${item.id}, this.value)" value="${item.now}" 
-                                class="w-12 text-center bg-slate-100 rounded-lg text-xs font-bold py-1 outline-none focus:ring-2 ring-indigo-500">
+                        <div class="w-[20%] text-center text-xs text-slate-400 font-mono">${item.open}</div>
+                        <div class="w-[20%] text-center">
+                            <input type="number" onchange="updateStockCount(${item.id}, this.value)" value="${item.now}" class="w-12 text-center bg-emerald-50 text-emerald-700 rounded text-xs font-bold py-1 outline-none">
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
+            renderStockChips();
         }
 
         function renderStockChips() {
             const container = document.getElementById('quick-stock-chips');
             container.innerHTML = "";
             appData.inventory.forEach(item => {
-                container.innerHTML += `
-                    <button onclick="addStockToCart(${item.id})" class="flex-shrink-0 bg-slate-100 px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-indigo-100 transition">
-                        ${item.name}
-                    </button>
-                `;
+                container.innerHTML += `<button onclick="addToCart('${item.name}', ${item.price})" class="flex-shrink-0 bg-white border border-slate-200 px-4 py-3 rounded-xl text-xs font-bold text-slate-700 shadow-sm active:scale-95">${item.name}</button>`;
             });
         }
 
-        function updateStock(id, val) {
+        function updateStockPrice(id, val) {
+            const item = appData.inventory.find(i => i.id === id);
+            if(item) { item.price = parseFloat(val); saveData(); renderStockChips(); }
+        }
+
+        function updateStockCount(id, val) {
             const item = appData.inventory.find(i => i.id === id);
             if(item) { item.now = parseInt(val); saveData(); }
         }
 
         function addNewStockItem() {
             const name = prompt("Item Name:");
-            const price = parseFloat(prompt("Price:"));
-            const stock = parseInt(prompt("Current Stock:"));
-            
-            if(name && price && !isNaN(stock)) {
-                appData.inventory.push({
-                    id: Date.now(), name, price, open: stock, now: stock
-                });
-                saveData();
-                renderInventory();
-                renderStockChips();
-            }
+            if(!name) return;
+            appData.inventory.push({ id: Date.now(), name, price: 0, open: 0, now: 0 });
+            saveData(); renderInventory();
         }
 
-        function clearHistory() {
-            if(confirm("Remove transactions older than 7 days?")) {
-                cleanOldHistory();
-                updateDashboard();
-            }
-        }
-
-        async function sendToCloud(data) {
-            try { await fetch(GOOGLE_URL, {method:'POST', mode:'no-cors', body:JSON.stringify(data)}); } 
-            catch (e) { console.log("Offline mode"); }
-        }
-
-        function syncWithCloud() {
-            const btn = document.getElementById('sync-btn');
-            btn.classList.add('spinning');
-            setTimeout(() => btn.classList.remove('spinning'), 1000);
-            alert("Syncing in background...");
-        }
-
+        function clearHistory() { if(confirm("Clear history?")) { appData.transactions = []; saveData(); updateDashboard(); } }
+        async function sendToCloud(data) { try { await fetch(GOOGLE_URL, {method:'POST', mode:'no-cors', body:JSON.stringify(data)}); } catch(e){} }
+        function syncWithCloud() { alert("Syncing..."); }
     </script>
 </body>
 </html>
