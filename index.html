@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Nexgen Hotel V5</title>
+    <title>Nexgen Hotel V7</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -15,14 +15,14 @@
         .nav-item.active { color: #1eb91e; border-top: 3px solid #1eb91e; }
         .nav-item { color: #94a3b8; padding-top: 8px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        #cart-list { height: 160px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 1rem; }
+        .admin-edit-field { border: 2px solid #6366f1 !important; background: #eef2ff !important; }
     </style>
 </head>
 <body class="text-slate-900 overflow-hidden h-screen flex flex-col">
 
     <div id="auth-overlay" class="fixed inset-0 z-[100] glass-header flex flex-col items-center justify-center p-10 text-center">
         <h1 class="text-6xl font-extrabold text-white tracking-tighter mb-2">NEXGEN</h1>
-        <p class="text-emerald-400 text-sm uppercase tracking-[0.4em] mb-12 font-bold italic">HOTEL V5</p>
+        <p class="text-emerald-400 text-sm uppercase tracking-[0.4em] mb-12 font-bold italic">HOTEL V7</p>
         <input type="password" id="pin-input" inputmode="numeric" placeholder="••••" class="bg-white/10 border-2 border-white/20 rounded-3xl p-6 text-center text-6xl text-white tracking-[0.2em] w-full max-w-[280px] mb-8 outline-none">
         <button onclick="checkPin()" class="w-full max-w-[280px] bg-emerald-500 text-white font-black py-6 rounded-[2.5rem] active:scale-95 text-2xl shadow-2xl">OPEN SYSTEM</button>
     </div>
@@ -33,18 +33,21 @@
             <div class="flex justify-between items-start mb-4">
                 <div>
                     <h2 id="header-date" class="text-2xl font-extrabold text-white">...</h2>
-                    <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest mt-1">Live Management System</p>
+                    <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest mt-1">Admin Controlled</p>
                 </div>
-                <button onclick="syncWithCloud()" class="bg-white/10 p-3 rounded-full"><i class="fas fa-sync text-white"></i></button>
+                <div class="text-right">
+                    <p class="text-[10px] text-white/50 font-bold uppercase">Net Profit Today</p>
+                    <p id="stat-profit" class="text-2xl font-black text-white">0</p>
+                </div>
             </div>
             
             <div class="grid grid-cols-2 gap-3">
                 <div class="bg-white/5 p-3 rounded-2xl border border-white/10">
-                    <p class="text-[9px] text-amber-400 font-bold uppercase mb-1">Total Cash</p>
+                    <p class="text-[9px] text-amber-400 font-bold uppercase mb-1">Cash Drawer</p>
                     <p id="stat-cash" class="text-xl font-black text-white">0</p>
                 </div>
                 <div class="bg-white/5 p-3 rounded-2xl border border-white/10">
-                    <p class="text-[9px] text-emerald-400 font-bold uppercase mb-1">Total M-Pesa</p>
+                    <p class="text-[9px] text-emerald-400 font-bold uppercase mb-1">M-Pesa Box</p>
                     <p id="stat-mpesa" class="text-xl font-black text-white">0</p>
                 </div>
             </div>
@@ -52,115 +55,100 @@
 
         <div class="flex-1 overflow-y-auto no-scrollbar pb-32" id="content-area">
             
-            <div id="view-dashboard" class="p-5 space-y-4">
-                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest px-2">Recent 7 Days History</h3>
+            <div id="view-dashboard" class="p-5 space-y-6">
+                <div class="bg-indigo-900 rounded-[2rem] p-5 text-white shadow-xl">
+                    <h4 class="text-[10px] font-black uppercase opacity-60 tracking-widest mb-4">Live Performance</h4>
+                    <div class="flex justify-between items-end">
+                        <div><p class="text-xs opacity-80">Best Seller</p><p id="top-item" class="text-xl font-black text-emerald-400">---</p></div>
+                        <div class="text-right"><p class="text-xs opacity-80">Margin</p><p id="perf-margin" class="text-xl font-black">0%</p></div>
+                    </div>
+                </div>
                 <div id="history-list" class="space-y-2"></div>
             </div>
 
             <div id="view-pos" class="hidden p-5 flex flex-col">
-                
                 <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 mb-6">
                     <div class="flex justify-between items-center mb-2 px-1">
-                        <span class="text-[10px] font-black text-slate-400 uppercase italic">Order Summary</span>
+                        <span class="text-[10px] font-black text-slate-400 uppercase italic">Current Order</span>
                         <span id="cart-total-display" class="text-xl font-black text-emerald-600">0</span>
                     </div>
-                    <div id="cart-list" class="bg-slate-50 p-2 space-y-1">
-                        </div>
+                    <div id="cart-list" class="bg-slate-50 p-2 space-y-1 rounded-xl min-h-[100px]"></div>
                 </div>
-
                 <div class="bg-white p-5 rounded-3xl shadow-lg border border-slate-100 space-y-4">
-                    <div>
-                        <label class="text-[10px] font-black text-slate-400 uppercase block mb-2 ml-1">Select Item</label>
-                        <select id="item-dropdown" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold text-slate-700 outline-none appearance-none">
-                            </select>
-                    </div>
-
+                    <select id="item-dropdown" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold text-slate-700 outline-none"></select>
                     <div class="flex gap-3">
-                        <div class="flex-1">
-                            <label class="text-[10px] font-black text-slate-400 uppercase block mb-2 ml-1">Quantity (Any Fraction)</label>
-                            <input type="number" id="pos-qty" step="0.01" value="1" min="0.01" onchange="validateQty(this)" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold text-slate-700 outline-none">
-                        </div>
-                        <div class="flex items-end">
-                            <button onclick="addItemToCart()" class="bg-slate-800 text-white h-[58px] px-8 rounded-2xl font-bold shadow-lg active:scale-95">ADD</button>
-                        </div>
+                        <input type="number" id="pos-qty" step="0.01" value="1" min="0.01" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold outline-none">
+                        <button onclick="addItemToCart()" class="bg-slate-800 text-white px-8 rounded-2xl font-bold active:scale-95">ADD</button>
                     </div>
                 </div>
-
                 <div class="grid grid-cols-2 gap-4 mt-8">
-                    <button onclick="checkout('Cash')" class="theme-cash py-6 rounded-3xl font-black shadow-xl flex flex-col items-center justify-center gap-1">
-                        <i class="fas fa-money-bill-wave text-xl"></i>
-                        <span>CASH</span>
-                    </button>
-                    <button onclick="checkout('Mpesa')" class="theme-mpesa py-6 rounded-3xl font-black shadow-xl flex flex-col items-center justify-center gap-1">
-                        <div class="font-bold text-xl italic">M-PESA</div>
-                    </button>
+                    <button onclick="checkout('Cash')" class="theme-cash py-6 rounded-3xl font-black shadow-xl"><i class="fas fa-money-bill-wave mr-2"></i>CASH</button>
+                    <button onclick="checkout('Mpesa')" class="theme-mpesa py-6 rounded-3xl font-black shadow-xl italic font-bold text-xl">M-PESA</button>
                 </div>
             </div>
 
-            <div id="view-inventory" class="hidden p-5">
-                <div class="bg-white rounded-3xl p-5 shadow-lg border border-slate-100 space-y-4">
-                    <div class="flex justify-between items-center px-1">
-                        <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest">Kitchen Stock</h4>
-                        <button onclick="addNewStockItem()" class="text-indigo-600 font-bold text-xs uppercase">+ Add Raw Material</button>
+            <div id="view-inventory" class="hidden p-5 space-y-4">
+                <div class="bg-white rounded-3xl p-5 shadow-lg border border-slate-100">
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest">Hotel Menu (Selling Prices)</h4>
+                        <button id="btn-admin-unlock" onclick="unlockPriceEdit()" class="text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full font-bold text-[10px] uppercase">
+                            <i class="fas fa-lock mr-1"></i> Unlock Prices
+                        </button>
                     </div>
-                    <div id="stock-list" class="space-y-4 pt-2"></div>
+                    <div id="menu-price-list" class="space-y-3"></div>
+                </div>
+
+                <div class="bg-white rounded-3xl p-5 shadow-lg border border-slate-100">
+                    <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Kitchen Raw Materials</h4>
+                    <div id="stock-list" class="space-y-4"></div>
+                    <button onclick="addNewStockItem()" class="w-full mt-4 py-3 border-2 border-dashed border-slate-200 rounded-xl text-slate-400 text-[10px] font-bold uppercase">+ Add Material</button>
                 </div>
             </div>
 
-            <div id="view-expense" class="hidden p-5">
-                <div class="bg-white rounded-3xl p-6 shadow-xl space-y-4">
-                    <h2 class="text-xl font-black text-slate-800 uppercase">New Expense</h2>
-                    <input type="text" id="exp-desc" placeholder="Details (e.g. Sugar buy)" class="w-full bg-slate-50 p-4 rounded-2xl font-bold outline-none border border-slate-100">
-                    <input type="number" id="exp-amount" placeholder="Amount (Ksh)" class="w-full bg-slate-50 p-4 rounded-2xl font-bold outline-none border border-slate-100 text-2xl">
-                    <div class="grid grid-cols-2 gap-3 mt-4">
-                        <button onclick="recordExpense('Cash')" class="theme-cash py-5 rounded-2xl font-black text-xs uppercase shadow-md">Paid Cash</button>
-                        <button onclick="recordExpense('Mpesa')" class="theme-mpesa py-5 rounded-2xl font-black text-xs uppercase shadow-md">Paid Mpesa</button>
+            <div id="view-expense" class="hidden p-5 flex flex-col space-y-4">
+                <div class="bg-white rounded-3xl p-6 shadow-xl space-y-3">
+                    <h2 class="text-lg font-black text-slate-800 uppercase">Spend</h2>
+                    <select id="exp-dropdown" onchange="toggleExpOther()" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold text-slate-700"></select>
+                    <input type="text" id="exp-other-name" placeholder="Item Name" class="hidden w-full p-4 bg-indigo-50 border border-indigo-200 rounded-2xl font-bold outline-none">
+                    <div class="flex gap-2">
+                        <input type="number" id="exp-qty" placeholder="Qty" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold">
+                        <input type="number" id="exp-unit-cost" placeholder="Unit Price" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 pt-2">
+                        <button onclick="recordExpense('Cash')" class="theme-cash py-4 rounded-xl font-bold text-xs uppercase shadow-md">Paid Cash</button>
+                        <button onclick="recordExpense('Mpesa')" class="theme-mpesa py-4 rounded-xl font-bold text-xs uppercase shadow-md">Paid Mpesa</button>
                     </div>
                 </div>
+                <div id="expense-history" class="space-y-2 px-1"></div>
             </div>
-
         </div>
 
         <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-6 py-2 pb-8 flex justify-between items-center z-50">
-            <button onclick="switchView('dashboard')" class="nav-item active flex flex-col items-center w-1/4" id="nav-dashboard">
-                <i class="fas fa-history text-xl"></i>
-                <span class="text-[9px] font-bold uppercase mt-1">History</span>
-            </button>
-            <button onclick="switchView('pos')" class="nav-item flex flex-col items-center w-1/4" id="nav-pos">
-                <i class="fas fa-shopping-basket text-xl"></i>
-                <span class="text-[9px] font-bold uppercase mt-1">Sell</span>
-            </button>
-            <button onclick="switchView('inventory')" class="nav-item flex flex-col items-center w-1/4" id="nav-inventory">
-                <i class="fas fa-utensils text-xl"></i>
-                <span class="text-[9px] font-bold uppercase mt-1">Stock</span>
-            </button>
-            <button onclick="switchView('expense')" class="nav-item flex flex-col items-center w-1/4" id="nav-expense">
-                <i class="fas fa-wallet text-xl"></i>
-                <span class="text-[9px] font-bold uppercase mt-1">Spend</span>
-            </button>
+            <button onclick="switchView('dashboard')" class="nav-item active flex flex-col items-center w-1/4" id="nav-dashboard"><i class="fas fa-home text-xl"></i><span class="text-[9px] font-bold uppercase mt-1">Home</span></button>
+            <button onclick="switchView('pos')" class="nav-item flex flex-col items-center w-1/4" id="nav-pos"><i class="fas fa-shopping-basket text-xl"></i><span class="text-[9px] font-bold uppercase mt-1">Sell</span></button>
+            <button onclick="switchView('inventory')" class="nav-item flex flex-col items-center w-1/4" id="nav-inventory"><i class="fas fa-sliders-h text-xl"></i><span class="text-[9px] font-bold uppercase mt-1">Menu</span></button>
+            <button onclick="switchView('expense')" class="nav-item flex flex-col items-center w-1/4" id="nav-expense"><i class="fas fa-wallet text-xl"></i><span class="text-[9px] font-bold uppercase mt-1">Spend</span></button>
         </div>
     </div>
 
     <script>
         const MY_PIN = "0000";
+        const ADMIN_PIN = "9999"; 
+        let isAdminUnlocked = false;
+
         let appData = {
             transactions: [],
             menu: [
-                { name: "Tea", price: 30 },
-                { name: "Chapati", price: 20 },
-                { name: "Mukimo", price: 80 },
-                { name: "Rice Mix", price: 100 },
-                { name: "Ugali", price: 100 },
-                { name: "Githeri", price: 70 },
-                { name: "Maandazi", price: 70 }
+                { id: 101, name: "Tea", price: 30 }, { id: 102, name: "Chapati", price: 20 }, 
+                { id: 103, name: "Mukimo", price: 80 }, { id: 104, name: "Rice Mix", price: 100 }, 
+                { id: 105, name: "Ugali", price: 100 }, { id: 106, name: "Githeri", price: 70 }, 
+                { id: 107, name: "Maandazi", price: 70 }
             ],
             inventory: [
-                { id: 1, name: "Potatoes", unit: "Kg", now: 0, open: 0 },
-                { id: 2, name: "Milk", unit: "Ltr", now: 0, open: 0 },
-                { id: 3, name: "Sugar", unit: "Kg", now: 0, open: 0 },
-                { id: 4, name: "Tea leaves", unit: "Gms", now: 0, open: 0 }
+                { id: 1, name: "Milk", unit: "Ltr", now: 0, open: 0, cost: 0, lastUpdate: Date.now() },
+                { id: 2, name: "Potatoes", unit: "Kg", now: 0, open: 0, cost: 0, lastUpdate: Date.now() }
             ],
-            lastDate: new Date().toDateString()
+            lastReset: Date.now()
         };
         let cart = [];
 
@@ -173,60 +161,110 @@
         }
 
         function init() {
-            const saved = localStorage.getItem('nexgen_hotel_v5');
+            const saved = localStorage.getItem('nexgen_hotel_v7');
             if(saved) appData = JSON.parse(saved);
-            
-            // Maintenance: Clean history > 7 days
-            const limit = Date.now() - (7 * 24 * 60 * 60 * 1000);
-            appData.transactions = appData.transactions.filter(t => t.timestamp > limit);
-            
-            checkNewDay();
+            checkResetLogic();
             renderAll();
             document.getElementById('header-date').innerText = new Date().toLocaleDateString('en-US', { day:'numeric', month:'long', year:'numeric' });
         }
 
-        function checkNewDay() {
-            const today = new Date().toDateString();
-            if(appData.lastDate !== today) {
+        function checkResetLogic() {
+            const now = new Date();
+            const last = new Date(appData.lastReset);
+            if (now.toDateString() !== last.toDateString() && now.getHours() >= 2) {
                 appData.inventory.forEach(i => i.open = i.now);
-                appData.lastDate = today;
+                appData.lastReset = now.getTime();
                 saveData();
             }
         }
 
-        function saveData() { localStorage.setItem('nexgen_hotel_v5', JSON.stringify(appData)); }
-
-        function validateQty(input) {
-            if(input.value <= 0) input.value = 1;
-        }
+        function saveData() { localStorage.setItem('nexgen_hotel_v7', JSON.stringify(appData)); }
 
         function renderAll() {
             renderDropdown();
             renderHistory();
             renderInventory();
+            renderMenuList();
+            renderExpenseDropdown();
             updateStats();
             renderCart();
         }
 
-        // --- POS ---
+        // --- ADMIN UNLOCK ---
+        function unlockPriceEdit() {
+            const pin = prompt("Enter Admin PIN to unlock price editing:");
+            if(pin === ADMIN_PIN) {
+                isAdminUnlocked = true;
+                document.getElementById('btn-admin-unlock').innerHTML = '<i class="fas fa-unlock text-emerald-500"></i> Edit Enabled';
+                renderMenuList();
+            } else { alert("Wrong Admin PIN!"); }
+        }
+
+        function updateMenuPrice(id, newPrice) {
+            if(!isAdminUnlocked) return;
+            const item = appData.menu.find(i => i.id === id);
+            if(item && newPrice > 0) {
+                item.price = parseFloat(newPrice);
+                saveData();
+                renderDropdown(); // Update the Sell dropdown immediately
+            }
+        }
+
+        // --- RENDERING ---
+        function renderMenuList() {
+            const list = document.getElementById('menu-price-list');
+            list.innerHTML = appData.menu.map(item => `
+                <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl">
+                    <span class="text-xs font-bold text-slate-700 uppercase">${item.name}</span>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[9px] font-bold text-slate-400 italic">Ksh</span>
+                        <input type="number" value="${item.price}" 
+                            ${!isAdminUnlocked ? 'disabled' : ''} 
+                            onchange="updateMenuPrice(${item.id}, this.value)"
+                            class="w-20 p-2 text-center rounded-lg font-black text-sm outline-none ${isAdminUnlocked ? 'admin-edit-field' : 'bg-transparent text-indigo-600'}">
+                    </div>
+                </div>
+            `).join("");
+        }
+
         function renderDropdown() {
-            const dropdown = document.getElementById('item-dropdown');
-            dropdown.innerHTML = appData.menu.map((item, idx) => 
-                `<option value="${idx}">${item.name} - Ksh ${item.price}</p>`
+            document.getElementById('item-dropdown').innerHTML = appData.menu.map((item, idx) => 
+                `<option value="${idx}">${item.name} - Ksh ${item.price}</option>`
             ).join("");
         }
 
+        function renderInventory() {
+            const list = document.getElementById('stock-list');
+            list.innerHTML = appData.inventory.map(item => `
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <div class="flex justify-between items-start mb-2">
+                        <p class="font-black text-slate-700 uppercase text-xs">${item.name}</p>
+                        <p class="text-[9px] font-bold text-indigo-500">${new Date(item.lastUpdate).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</p>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <div><p class="text-[8px] text-slate-400 font-bold">OPENING</p><p class="text-xs font-black">${item.open} ${item.unit}</p></div>
+                        <div><p class="text-[8px] text-slate-400 font-bold">COST/UNIT</p><p class="text-xs font-black">Ksh ${item.cost}</p></div>
+                        <div><p class="text-[8px] text-slate-400 font-bold">CLOSING</p>
+                            <input type="number" step="0.1" value="${item.now}" onchange="updateStock(${item.id}, this.value)" class="w-full bg-white border border-slate-200 rounded p-1 text-xs font-bold outline-none">
+                        </div>
+                    </div>
+                </div>
+            `).join("");
+        }
+
+        function renderExpenseDropdown() {
+            const items = ["Milk", "Potatoes", "Sugar", "Gas Refill", "Charcoal", "Greens", "Onions", "Other"];
+            document.getElementById('exp-dropdown').innerHTML = items.map(i => `<option value="${i}">${i}</option>`).join("");
+        }
+
+        // --- LOGIC ---
         function addItemToCart() {
-            const menuIdx = document.getElementById('item-dropdown').value;
-            const item = appData.menu[menuIdx];
+            const idx = document.getElementById('item-dropdown').value;
+            const item = appData.menu[idx];
             const qty = parseFloat(document.getElementById('pos-qty').value);
-            
             if(qty > 0) {
-                const finalPrice = item.price * qty;
-                const entryName = qty === 1 ? item.name : `${qty} x ${item.name}`;
-                cart.push({ name: entryName, price: finalPrice });
+                cart.push({ name: item.name, price: item.price * qty, qty, base: item.name });
                 renderCart();
-                document.getElementById('pos-qty').value = 1; // Reset
             }
         }
 
@@ -236,115 +274,74 @@
             let total = 0;
             cart.forEach((item, idx) => {
                 total += item.price;
-                list.innerHTML += `
-                    <div class="flex justify-between items-center bg-white p-3 rounded-xl shadow-sm mb-1">
-                        <span class="text-xs font-bold text-slate-700">${item.name}</span>
-                        <div class="flex items-center gap-3">
-                            <span class="font-black text-sm">${item.price.toLocaleString()}</span>
-                            <button onclick="cart.splice(${idx},1); renderCart()" class="text-red-400 px-2"><i class="fas fa-times-circle"></i></button>
-                        </div>
-                    </div>`;
+                list.innerHTML += `<div class="flex justify-between p-3 border-b border-slate-100"><span class="text-xs font-bold">${item.qty}x ${item.name}</span><span class="font-black text-xs">${item.price} <button onclick="cart.splice(${idx},1); renderCart()" class="text-red-400 ml-2">×</button></span></div>`;
             });
-            document.getElementById('cart-total-display').innerText = `Ksh ${total.toLocaleString()}`;
+            document.getElementById('cart-total-display').innerText = total.toLocaleString();
         }
 
         function checkout(method) {
             if(!cart.length) return;
             const total = cart.reduce((s, i) => s + i.price, 0);
-            const desc = cart.map(i => i.name).join(", ");
-            
             appData.transactions.unshift({
-                timestamp: Date.now(), type: 'Sale', method: method, amount: total, desc: desc
+                timestamp: Date.now(), type: 'Sale', method, amount: total, 
+                desc: cart.map(i => `${i.qty} ${i.name}`).join(", "),
+                items: cart.map(i => ({name: i.base, qty: i.qty}))
             });
-            
-            cart = [];
-            saveData();
-            renderAll();
-            switchView('dashboard');
+            cart = []; saveData(); renderAll(); switchView('dashboard');
         }
 
         function recordExpense(method) {
-            const desc = document.getElementById('exp-desc').value;
-            const amt = parseFloat(document.getElementById('exp-amount').value);
-            if(desc && amt) {
+            const drop = document.getElementById('exp-dropdown').value;
+            const other = document.getElementById('exp-other-name').value;
+            const name = drop === 'Other' ? other : drop;
+            const qty = parseFloat(document.getElementById('exp-qty').value);
+            const unit = parseFloat(document.getElementById('exp-unit-cost').value);
+            if(name && qty > 0 && unit > 0) {
                 appData.transactions.unshift({
-                    timestamp: Date.now(), type: 'Expense', method: method, amount: amt, desc: desc
+                    timestamp: Date.now(), type: 'Expense', method, amount: qty * unit, 
+                    desc: `${qty} ${name} (@${unit})`
                 });
-                document.getElementById('exp-desc').value = "";
-                document.getElementById('exp-amount').value = "";
-                saveData();
-                renderAll();
-                switchView('dashboard');
+                const stock = appData.inventory.find(i => i.name.toLowerCase() === name.toLowerCase());
+                if(stock) { stock.cost = unit; stock.lastUpdate = Date.now(); }
+                saveData(); renderAll(); switchView('dashboard');
             }
         }
 
-        // --- STATS & LOGS ---
         function updateStats() {
-            const todayStr = new Date().toDateString();
-            let cash = 0, mpesa = 0;
+            const today = new Date().toDateString();
+            let cash = 0, mpesa = 0, sales = 0, expenses = 0, itemCounts = {};
             appData.transactions.forEach(t => {
-                if(new Date(t.timestamp).toDateString() === todayStr) {
-                    const sign = t.type === 'Sale' ? 1 : -1;
-                    if(t.method === 'Cash') cash += (t.amount * sign);
-                    else mpesa += (t.amount * sign);
+                if(new Date(t.timestamp).toDateString() === today) {
+                    if(t.type === 'Sale') {
+                        sales += t.amount;
+                        if(t.method === 'Cash') cash += t.amount; else mpesa += t.amount;
+                        t.items.forEach(it => { itemCounts[it.name] = (itemCounts[it.name] || 0) + it.qty; });
+                    } else {
+                        expenses += t.amount;
+                        if(t.method === 'Cash') cash -= t.amount; else mpesa -= t.amount;
+                    }
                 }
             });
+            document.getElementById('stat-profit').innerText = (sales - expenses).toLocaleString();
             document.getElementById('stat-cash').innerText = cash.toLocaleString();
             document.getElementById('stat-mpesa').innerText = mpesa.toLocaleString();
+            let top = "---"; let max = 0;
+            for(let k in itemCounts) { if(itemCounts[k] > max) { max = itemCounts[k]; top = k; } }
+            document.getElementById('top-item').innerText = top;
+            document.getElementById('perf-margin').innerText = sales > 0 ? (((sales-expenses)/sales)*100).toFixed(0) + "%" : "0%";
         }
 
         function renderHistory() {
-            const list = document.getElementById('history-list');
-            list.innerHTML = "";
-            appData.transactions.forEach(t => {
-                const time = new Date(t.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-                const date = new Date(t.timestamp).toLocaleDateString([], {day:'numeric', month:'short'});
-                const isSale = t.type === 'Sale';
-                list.innerHTML += `
-                    <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm border border-slate-50">
-                        <div class="max-w-[70%]">
-                            <p class="font-bold text-slate-800 text-xs truncate">${t.desc}</p>
-                            <p class="text-[9px] font-black uppercase text-slate-300 mt-1">${date} • ${time} • <span class="${t.method === 'Mpesa' ? 'text-emerald-500' : 'text-amber-600'}">${t.method}</span></p>
-                        </div>
-                        <p class="font-black text-sm ${isSale ? 'text-slate-900' : 'text-red-500'}">${isSale ? '' : '-'}${t.amount.toLocaleString()}</p>
-                    </div>`;
-            });
+            document.getElementById('history-list').innerHTML = appData.transactions.slice(0,15).map(t => `
+                <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm">
+                    <div><p class="font-bold text-xs text-slate-700">${t.desc}</p><p class="text-[9px] uppercase text-slate-300">${new Date(t.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} • ${t.method}</p></div>
+                    <p class="font-black text-sm ${t.type==='Sale' ? 'text-indigo-600' : 'text-rose-500'}">${t.type==='Sale' ? '' : '-'}${t.amount}</p>
+                </div>
+            `).join("");
         }
 
-        // --- STOCK ---
-        function renderInventory() {
-            const list = document.getElementById('stock-list');
-            list.innerHTML = "";
-            appData.inventory.forEach(item => {
-                list.innerHTML += `
-                    <div class="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
-                        <div class="w-1/2">
-                            <p class="font-bold text-sm text-slate-700">${item.name}</p>
-                            <p class="text-[9px] text-slate-400 uppercase font-black tracking-tighter">Opened: ${item.open} ${item.unit}</p>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <input type="number" step="0.1" onchange="updateStock(${item.id}, this.value)" value="${item.now}" class="w-16 bg-slate-100 p-2 rounded-xl font-bold text-center text-xs outline-none">
-                            <span class="text-[10px] font-black text-slate-300 uppercase">${item.unit}</span>
-                        </div>
-                    </div>`;
-            });
-        }
-
-        function updateStock(id, val) {
-            const item = appData.inventory.find(i => i.id === id);
-            if(item) item.now = parseFloat(val);
-            saveData();
-        }
-
-        function addNewStockItem() {
-            const n = prompt("Item Name:");
-            const u = prompt("Unit (e.g. Kg, Ltr):");
-            if(n && u) {
-                appData.inventory.push({ id: Date.now(), name: n, unit: u, now: 0, open: 0 });
-                saveData(); renderInventory();
-            }
-        }
-
+        function toggleExpOther() { document.getElementById('exp-other-name').classList.toggle('hidden', document.getElementById('exp-dropdown').value !== 'Other'); }
+        function updateStock(id, val) { const item = appData.inventory.find(i => i.id === id); if(item) { item.now = parseFloat(val); item.lastUpdate = Date.now(); saveData(); renderAll(); } }
         function switchView(view) {
             ['dashboard', 'pos', 'inventory', 'expense'].forEach(v => {
                 document.getElementById('view-'+v).classList.add('hidden');
@@ -353,9 +350,6 @@
             document.getElementById('view-'+view).classList.remove('hidden');
             document.getElementById('nav-'+view).classList.add('active');
         }
-
-        function syncWithCloud() { alert("Cloud Backup Triggered..."); }
-
     </script>
 </body>
 </html>
